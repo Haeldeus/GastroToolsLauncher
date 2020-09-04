@@ -1,0 +1,5 @@
+#Begin List File
+CashAssets;SEPARATOR;Kassenhelfer
+Sample;SEPARATOR;Sample
+Sample;SEPARATOR;Sample
+#End List File
