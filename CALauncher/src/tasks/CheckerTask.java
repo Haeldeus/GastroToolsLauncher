@@ -125,7 +125,7 @@ public class CheckerTask extends Task<Void> {
          * This Line is always at the start of the Information about versions. This is checked 
          * here to remove a line from s.
          */
-        if (line.contains("#Begin Version File")) {
+        if (line.contains("#Begin List File")) {
           list = true;
           prt.updateIndicator(++index, "Liste der Anwendungen gefunden!");
         }
@@ -136,6 +136,8 @@ public class CheckerTask extends Task<Void> {
     }
     prt.updateIndicator(++index, "Aufteilen der Liste...");
     StringTokenizer st = new StringTokenizer(s, System.lineSeparator());
+    System.out.println("File Content:");
+    System.out.println(s);
     
     ArrayList<String> repos = new ArrayList<String>();
     ArrayList<String> names = new ArrayList<String>();
