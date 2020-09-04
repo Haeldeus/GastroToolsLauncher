@@ -32,6 +32,7 @@ public class ProgressTask extends Task<Void> {
   
   @Override
   protected Void call() {    
+    /*
     for (int i = 0; i <= 10000; i++) {
       try {
         Thread.sleep(1);
@@ -41,6 +42,18 @@ public class ProgressTask extends Task<Void> {
       }
       updateProgress(i, 10000);
     }
+    */
+    CheckerTask task = new CheckerTask(this, updates, primary, index);
+    new Thread(task).start();
+    new Thread(() -> {
+      try {
+        Thread.sleep(5000);  
+      } catch (InterruptedException e) {
+        //Testing Purposes, shouldn't be called.
+        e.printStackTrace();
+      }
+      task.cancel();
+    }).start();
     /*
     File f = new File(System.getProperty("user.dir") + "/WeyherCalculator.jar");
     // Run a java application in a separate system process

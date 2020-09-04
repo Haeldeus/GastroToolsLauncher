@@ -35,12 +35,13 @@ public class WTLauncher extends Application {
   
   @Override
   public void start(Stage primaryStage) throws Exception {
-    writeVersion();
+//    writeVersion();
     bp = new BorderPane();
     /*
      * Sets the Size of the Scene, it's restrictions and the Stylesheet. Afterwards, it displays 
      * the primaryStage to the User.
      */
+    startCheckingTask();
     Scene scene = new Scene(bp, 600, 250);
 //    scene.getStylesheets().add(Util.getControlStyle());
     primaryStage.setScene(scene);
