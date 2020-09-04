@@ -137,6 +137,18 @@ public class CheckerTask extends Task<Void> {
     prt.updateIndicator(++index, "Aufteilen der Liste...");
     StringTokenizer st = new StringTokenizer(s, System.lineSeparator());
     
+    ArrayList<String> repos = new ArrayList<String>();
+    ArrayList<String> names = new ArrayList<String>();
+    
+    while (st.hasMoreTokens()) {
+      StringTokenizer tokenizer = new StringTokenizer(st.nextToken(), "--SEP--");
+      repos.add(tokenizer.nextToken());
+      names.add(tokenizer.nextToken());
+    }
+    System.out.println("LISTS:");
+    System.out.println("Repos: " + repos.toString());
+    System.out.println("Names: " + names.toString());
+    
 //    st.nextToken();
 //    prt.setPublishedVersion(st.nextToken());
 //    st.nextToken();
