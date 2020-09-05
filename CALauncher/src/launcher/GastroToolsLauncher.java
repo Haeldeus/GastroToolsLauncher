@@ -1,8 +1,10 @@
 package launcher;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -21,11 +23,11 @@ import tasks.ProgressTask;
 
 /**
  * The Launcher for the CashAssets Application. This will check for an Update for the 
- * Application and, if one is found, asks the User to do an Update.
+ * Applications and, if one is found, asks the User to do an Update.
  * @author Haeldeus
  * @version 1.0
  */
-public class WTLauncher extends Application {
+public class GastroToolsLauncher extends Application {
 
   private static final double version = 0.5;
   
@@ -33,44 +35,52 @@ public class WTLauncher extends Application {
   
   private BorderPane bp;
   
+  private ArrayList<String> repos;
+  
+  private ArrayList<String> names;
+  
+  private boolean success;
+  
+  private String path;
+  
   @Override
   public void start(Stage primaryStage) throws Exception {
-//    writeVersion();
+    writeVersion();
     bp = new BorderPane();
     /*
      * Sets the Size of the Scene, it's restrictions and the Stylesheet. Afterwards, it displays 
      * the primaryStage to the User.
      */
-    startCheckingTask();
     Scene scene = new Scene(bp, 600, 250);
-//    scene.getStylesheets().add(Util.getControlStyle());
+    //scene.getStylesheets().add(Util.getControlStyle());
     primaryStage.setScene(scene);
     primaryStage.setMinHeight(270);
     primaryStage.setMinWidth(620);
     primaryStage.show();
+    startCheckingTask();
   }
   
   private void writeVersion() {
     try {
-      String path = Paths.get("").toAbsolutePath().toString();
-      if (path.substring(path.length() - 5).contains("app")) {
-        path = path.concat("/Version.txt");
-      } else {
-        path = path.concat("/app/Version.txt");
+      path = Paths.get("").toAbsolutePath().toString();
+      int index = path.lastIndexOf(File.separator + "app");
+      if (index >= 0) {
+        path = path.substring(0, index);
       }
-      System.out.println(path);
-      FileWriter fw = new FileWriter(path);
+      path = path.concat(File.separator + "app" + File.separator);
+      FileWriter fw = new FileWriter(path + "Version.txt");
       fw.write("" + version);
-      fw.close();
+      fw.close(); 
     } catch (IOException e) {
       showUpdateFailed("Fehler beim Schreiben der Version! Bitte dem Entwickler melden.");
-    }
+    } 
   }
   
   public void showUpdateFailed(String text) {
     Platform.runLater(new Runnable() {
       @Override
       public void run() {
+        bp.setCenter(null);
         bp.setBottom(null);
         GridPane grid = new GridPane();
         grid.setHgap(10);
@@ -92,7 +102,7 @@ public class WTLauncher extends Application {
         btStart.setOnAction(new EventHandler<ActionEvent>() {
           @Override
           public void handle(ActionEvent ae) {
-            startWithoutCheck();
+            startWithoutUpdate();
           }
         });
         grid.add(btStart, 1, 1);
@@ -113,17 +123,37 @@ public class WTLauncher extends Application {
     new Thread(pt).start();
   }
   
-  private void startWithoutCheck() {
+  public void getStarted() {
+    
+  }
+  
+  private void startWithoutUpdate() {
     Platform.runLater(new Runnable() {
       @Override
       public void run() {
-         showUpdateFailed("Noch nicht implementiert!");
-         //TODO: HANDLE THIS!
+        showUpdateFailed("Noch nicht implementiert!");
+        File f = new File(path);
+        ArrayList<String> dirs = new ArrayList<String>();
+        for (String s : f.list()) {
+          if (!s.contains(".")) {
+            dirs.add(s);
+          }
+        }
+        //TODO: Check each installed Folder for a .jar; Display FolderName as AppName;
+        //TODO: Link Play-Button to .jar; Disable Download Button; Enable Delete-Button.
       }
     });
   }
   
+  public void setRepos(ArrayList<String> repos) {
+    this.repos = repos;
+  }
+  
+  public void setNames(ArrayList<String> names) {
+    this.names = names;
+  }
+  
   public static void main(String[] args) {
-    WTLauncher.launch(args);
+    GastroToolsLauncher.launch(args);
   }
 }

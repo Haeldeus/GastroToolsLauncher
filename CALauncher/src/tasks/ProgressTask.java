@@ -5,13 +5,13 @@ import java.util.ArrayList;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
-import launcher.WTLauncher;
+import launcher.GastroToolsLauncher;
 
 public class ProgressTask extends Task<Void> {
   
   private Label updates;
   
-  private WTLauncher primary;
+  private GastroToolsLauncher primary;
   
   private int index;
   
@@ -23,7 +23,7 @@ public class ProgressTask extends Task<Void> {
   
   private boolean success;
   
-  public ProgressTask(Label updates, WTLauncher primary) {
+  public ProgressTask(Label updates, GastroToolsLauncher primary) {
     this.updates = updates;
     this.primary = primary;
     index = 1;
@@ -32,43 +32,36 @@ public class ProgressTask extends Task<Void> {
   
   @Override
   protected Void call() {    
-    /*
-    for (int i = 0; i <= 10000; i++) {
-      try {
-        Thread.sleep(1);
-      } catch (InterruptedException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-      updateProgress(i, 10000);
-    }
-    */
     CheckerTask task = new CheckerTask(this, updates, primary, index);
     new Thread(task).start();
     new Thread(() -> {
       try {
         Thread.sleep(5000);  
-      } catch (InterruptedException e) {
+      } catch (InterruptedException ie) {
         //Testing Purposes, shouldn't be called.
-        e.printStackTrace();
+        ie.printStackTrace();
       }
       task.cancel();
     }).start();
-    /*
-    File f = new File(System.getProperty("user.dir") + "/WeyherCalculator.jar");
-    // Run a java application in a separate system process
-    Process proc;
-    try {
-      proc = Runtime.getRuntime().exec("java -jar " + f.getPath());
-      // Then retrieve the process output
-      InputStream in = proc.getInputStream();
-      InputStream err = proc.getErrorStream();
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+    while (publishedRepos == null) {
+      try {
+        Thread.sleep(50);
+      } catch (InterruptedException ie) {
+        //Nothing to do here, since this shouldn't be called at any time.
+      }
     }
-    */
-    return null;
+    if (success) {
+      updateIndicator(max, "Liste aller Anwendungen gefunden!");
+      primary.setNames(repoNames);
+      primary.setRepos(publishedRepos);
+      primary.getStarted();
+      return null;
+    } else {
+      updateIndicator(max, updates.getText());
+      primary.setNames(new ArrayList<String>());
+      primary.setRepos(new ArrayList<String>());
+      return null;
+    }
   }
   
   /**

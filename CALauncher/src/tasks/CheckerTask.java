@@ -12,16 +12,16 @@ import java.util.StringTokenizer;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
-import launcher.WTLauncher;
+import launcher.GastroToolsLauncher;
 
 public class CheckerTask extends Task<Void> {
 
   private ProgressTask prt;
   private Label updates;
-  private WTLauncher primary;
+  private GastroToolsLauncher primary;
   private int index;
   
-  public CheckerTask(ProgressTask prt, Label updates, WTLauncher primary, int index) {
+  public CheckerTask(ProgressTask prt, Label updates, GastroToolsLauncher primary, int index) {
     this.prt = prt;
     this.updates = updates;
     this.primary = primary;
@@ -33,7 +33,7 @@ public class CheckerTask extends Task<Void> {
     URL url;
     BufferedReader br;
     try {
-      url = new URL("https://github.com/Haeldeus/CashAssetsLauncher/blob/master/List.txt");
+      url = new URL("https://github.com/Haeldeus/CashAssetsLauncher/blob/master/List.txts");
       // Get the input stream through URL Connection
       URLConnection con = url.openConnection();
       con.connect();
@@ -41,10 +41,13 @@ public class CheckerTask extends Task<Void> {
       br = new BufferedReader(new InputStreamReader(is));
       prt.updateIndicator(++index, "Verbindung hergestellt!");
     } catch (IOException e) {
+      prt.setResult(false);
+      prt.setRepoNames(new ArrayList<String>());
+      prt.setPublishedRepos(new ArrayList<String>());
       Platform.runLater(new Runnable() {
         @Override
         public void run() {
-          updates.setText("Keine Verbindung zum Server möglich. Bitte überprüfen Sie Ihre "
+          primary.showUpdateFailed("Keine Verbindung zum Server möglich. Bitte überprüfen Sie Ihre "
               + "Internetverbindung.");
         }        
       });
@@ -78,6 +81,8 @@ public class CheckerTask extends Task<Void> {
             @Override
             public void run() {
               prt.setResult(false);
+              prt.setRepoNames(new ArrayList<String>());
+              prt.setPublishedRepos(new ArrayList<String>());
               primary.showUpdateFailed("Zeitüberschreitung!");
             }           
           });
@@ -105,6 +110,8 @@ public class CheckerTask extends Task<Void> {
                 @Override
                 public void run() {
                   prt.setResult(false);
+                  prt.setRepoNames(new ArrayList<String>());
+                  prt.setPublishedRepos(new ArrayList<String>());
                   primary.showUpdateFailed("Zeitüberschreitung!");
                 }           
               });
@@ -131,35 +138,24 @@ public class CheckerTask extends Task<Void> {
         }
       }
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     prt.updateIndicator(++index, "Aufteilen der Liste...");
     StringTokenizer st = new StringTokenizer(s, System.lineSeparator());
-    System.out.println("File Content:");
-    System.out.println(s);
     
     ArrayList<String> repos = new ArrayList<String>();
     ArrayList<String> names = new ArrayList<String>();
     
     while (st.hasMoreTokens()) {
-      StringTokenizer tokenizer = new StringTokenizer(st.nextToken(), "--SEP--");
+      String tmp = st.nextToken().replace("--SEP--", "|");
+      StringTokenizer tokenizer = new StringTokenizer(tmp, "|");
       repos.add(tokenizer.nextToken());
       names.add(tokenizer.nextToken());
     }
-    System.out.println("LISTS:");
-    System.out.println("Repos: " + repos.toString());
-    System.out.println("Names: " + names.toString());
-    
-//    st.nextToken();
-//    prt.setPublishedVersion(st.nextToken());
-//    st.nextToken();
-//    ArrayList<String> oldVersions = new ArrayList<String>();
-//    while (st.hasMoreTokens()) {
-//      oldVersions.add(st.nextToken());
-//    }
-//    prt.updateIndicator(++index, "Version überprüft.");
-//    prt.setOlderVersions(oldVersions);
+    prt.setPublishedRepos(repos);
+    prt.setRepoNames(names);
+    prt.setResult(true);
+    prt.updateIndicator(++index, "Liste überprüft.");
     return null;
   }
 

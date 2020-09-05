@@ -1,6 +1,3 @@
 #Begin List File
 CashAssets--SEP--Kassenhelfer
-SomeRepo--SEP--SomeName
-ExampleRepo1--SEP--ExampleName1
-ExampleRepo2--SEP--ExampleName2
 #End List File
