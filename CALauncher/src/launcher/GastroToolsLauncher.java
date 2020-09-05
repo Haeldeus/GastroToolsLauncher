@@ -123,7 +123,7 @@ public class GastroToolsLauncher extends Application {
     new Thread(pt).start();
   }
   
-  public void getStarted() {
+  public void getStarted(boolean connection) {
     
   }
   
@@ -139,7 +139,19 @@ public class GastroToolsLauncher extends Application {
             dirs.add(s);
           }
         }
-        //TODO: Check each installed Folder for a .jar; Display FolderName as AppName;
+        setNames(dirs);
+        ArrayList<String> jarList = new ArrayList<String>();
+        for (String dir : dirs) {
+          f = new File(path + File.separator + dir);
+          for (String file : f.list()) {
+            if (file.contains(".jar")) {
+              jarList.add(file);
+            }
+          }
+        }
+        setRepos(jarList);
+        getStarted(false);
+        //TODO: Display FolderName as AppName;
         //TODO: Link Play-Button to .jar; Disable Download Button; Enable Delete-Button.
       }
     });
