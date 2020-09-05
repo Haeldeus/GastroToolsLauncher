@@ -1,2 +1,2 @@
-# CashAssetsLauncher
- The Launcher for the CashAssets Application. Since the Launcher itself might be updated as well, this Repo is created to keep track of these updates
+# GastroToolsLauncher
+ A Launcher for all the Applications, that were created for the Client. Since there might be future additional Applications, this Launcher is used to keep track of these Applications, as well as possible Updates for each Application.
