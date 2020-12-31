@@ -54,7 +54,7 @@ public class ProgressTask extends Task<Void> {
       updateIndicator(max, "Liste aller Anwendungen gefunden!");
       primary.setNames(repoNames);
       primary.setRepos(publishedRepos);
-      primary.getStarted(true);
+      primary.buildLauncher(true);
       return null;
     } else {
       updateIndicator(max, updates.getText());

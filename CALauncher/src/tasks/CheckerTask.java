@@ -33,7 +33,7 @@ public class CheckerTask extends Task<Void> {
     URL url;
     BufferedReader br;
     try {
-      url = new URL("https://github.com/Haeldeus/CashAssetsLauncher/blob/master/List.txts");
+      url = new URL("https://github.com/Haeldeus/CashAssetsLauncher/blob/master/List.txt");
       // Get the input stream through URL Connection
       URLConnection con = url.openConnection();
       con.connect();
