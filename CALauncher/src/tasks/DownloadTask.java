@@ -17,14 +17,16 @@ import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 
+//TODO: Rewrite this Task to download the Applications and not the Launcher, since this was copied from the Updater.
+
 /**
  * The Task, that will control the Download of the Launcher, if it should be updated or freshly 
  * downloaded.
+
  * @author Haeldeus
  * @version 1.0
  */
@@ -75,6 +77,7 @@ public class DownloadTask extends Task<Void> {
   
   /**
    * The Constructor for this Task. Sets all Fields to the given Parameters.
+
    * @param downloadUrl The URL to download the Launcher from.
    * @param file The File, where the Download will be stored in.
    * @param updates The Label, that will display Messages to the User.
@@ -223,6 +226,7 @@ public class DownloadTask extends Task<Void> {
   /**
    * Downloads the File from the given URLConnection to the given outputFile. 
    * Also updates the Progress while doing so to be able to show this progress to the User.
+
    * @param downloadFileConnection  The URLConnection, the Data will be downloaded from.
    * @param outputFile  The File, where the Data will be stored in.
    * @return  The Size of the downloaded Data in bytes as a long.
@@ -303,6 +307,7 @@ public class DownloadTask extends Task<Void> {
 
   /**
    * Updates the User about the estimated time remaining to download the Data.
+
    * @param bytesDownloaded The size of the Data downloaded so far.
    * @since 1.0
    */
@@ -377,6 +382,7 @@ public class DownloadTask extends Task<Void> {
   /**
    * Adds the Functionality to resume the Download to the File and calculates the Size of the 
    * Download.
+
    * @param downloadUrl The URL, that will be downloaded as a String.
    * @param outputFile  The File, the data will be saved in.
    * @return  A new URLConnection to the given URL with the ability to resume the download.

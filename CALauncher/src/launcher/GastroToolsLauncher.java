@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -28,6 +27,7 @@ import util.AppDisplayArea;
 /**
  * The Launcher for the CashAssets Application. This will check for an Update for the 
  * Applications and, if one is found, asks the User to do an Update.
+
  * @author Haeldeus
  * @version 1.0
  */
@@ -58,7 +58,7 @@ public class GastroToolsLauncher extends Application {
   
   /**
    * The Names of the Folders for the Applications. This are clear Names instead of the 
-   * Repositories' names.
+   * Repositories' names. These Names will be shown to the User as the Name of the Applications.
    */
   private ArrayList<String> names;
   
@@ -71,6 +71,7 @@ public class GastroToolsLauncher extends Application {
   
   /**
    * The Stage of the Application.
+
    * @see Stage
    */
   private Stage primaryStage;
@@ -111,6 +112,7 @@ public class GastroToolsLauncher extends Application {
    * Writes the version into a new TextFile in the current working directory indicated by 
    * {@link #path}. Also sets {@link #path} to be working in the /app/ Folder of the current 
    * directory.
+
    * @since 1.0
    */
   private void writeVersion() {
@@ -132,6 +134,7 @@ public class GastroToolsLauncher extends Application {
    * Displays the given Message to the User. Since this is used, whenever something went wrong, 
    * the User afterwards can choose between starting the Launcher without updating the List or 
    * retry to check again.
+
    * @param text  The Text to be displayed in the Label.
    * @since 1.0
    */
@@ -194,6 +197,7 @@ public class GastroToolsLauncher extends Application {
   
   /**
    * Starts the Task, that will check for the List of Applications in the Repository.
+
    * @since 1.0
    * @see ProgressTask
    */
@@ -210,7 +214,8 @@ public class GastroToolsLauncher extends Application {
     /*
      * Creates a new ProgressTask, binds it to the Indicator and starts a new Thread for the Task.
      */
-    ProgressTask pt = new ProgressTask(this.updatesLabel, this);
+    //TODO: Add possibility to change the timeout of the CheckerTask. (Setting?)
+    ProgressTask pt = new ProgressTask(this.updatesLabel, this, 5000);
     pi.progressProperty().bind(pt.progressProperty());
     new Thread(pt).start();
   }
@@ -227,6 +232,7 @@ public class GastroToolsLauncher extends Application {
    * <br><br>In case a connection was found, the List has been created in {@link ProgressTask} and 
    * the Launcher will display this List. This start will ignore custom Folders, so there is a need 
    * for a repair Method.
+
    * @param connection  Boolean value if a connection could be established in {@link 
    *      #startCheckingTask()}.
    * @since 1.0
@@ -266,6 +272,7 @@ public class GastroToolsLauncher extends Application {
          * AppDisplayAreas differently, so this check is required.
          */
         if (connection) {
+          //TODO: Add Commentary
           for (int i = 0; i < names.size(); i++) {
             AppDisplayArea area = new AppDisplayArea();
             area.setName(names.get(i));
@@ -284,6 +291,7 @@ public class GastroToolsLauncher extends Application {
           }
           startCheckUpdateTasks();
         } else {
+          //TODO: Add Commentary
           for (int i = 0; i < names.size(); i++) {
             AppDisplayArea area = new AppDisplayArea();
             area.setName(names.get(i));
@@ -310,9 +318,12 @@ public class GastroToolsLauncher extends Application {
     });
   }
   
+  //TODO: Add Commentary to all following Methods.
+  
   /**
    * Scans all added Repositories for a version File and checks, if a newer version is available to 
    * download.
+
    * @since 1.0 
    */
   private void startCheckUpdateTasks() {
@@ -333,25 +344,37 @@ public class GastroToolsLauncher extends Application {
     }
   }
   
-  public void startSpecificUpdateTask(int index) {
-    UpdateTask task = new UpdateTask(repos.get(index), names.get(index), 
-        displayAreas.get(names.get(index)), path, index, this);
-    displayAreas.get(names.get(index)).bindProgressBar(task);
-    new Thread(task).start();
-    new Thread(() -> {
-      try {
-        Thread.sleep(5000);  
-      } catch (InterruptedException e) {
-        //Testing Purposes, shouldn't be called.
-        e.printStackTrace();
-      }
-      task.cancel();
-    }).start();
+  /**
+   * Starts the UpdateTasks specified by their index in the given ArrayList {@code indices}. This 
+   * is used to only start a subset of the Tasks, which is useful, when having to manually update 
+   * the Applications of this Launcher.
+
+   * @param indices The ArrayList of Integers with all indices of the Tasks, that will be started 
+   *      without starting the other Tasks.
+   * @since 1.0
+   */
+  public void startSpecificUpdateTasks(ArrayList<Integer> indices) {
+    for (int index : indices) {
+      UpdateTask task = new UpdateTask(repos.get(index), names.get(index), 
+          displayAreas.get(names.get(index)), path, index, this);
+      displayAreas.get(names.get(index)).bindProgressBar(task);
+      new Thread(task).start();
+      new Thread(() -> {
+        try {
+          Thread.sleep(5000);  
+        } catch (InterruptedException e) {
+          //Testing Purposes, shouldn't be called.
+          e.printStackTrace();
+        }
+        task.cancel();
+      }).start();
+    }
   }
   
   /**
    * Starts the Launcher without updating/checking the List of published Applications. This will 
    * add installed Folders and .jar-Files to the Launcher, which can then be started.
+
    * @since 1.0
    */
   private void startWithoutUpdate() {
@@ -386,14 +409,34 @@ public class GastroToolsLauncher extends Application {
     });
   }
   
+  /**
+   * Sets {@link #repos} to the given ArrayList of Strings.
+
+   * @param repos The List of Strings, that describes the Names of the Repositories added to the 
+   *      Launcher.
+   * @since 1.0
+   */
   public void setRepos(ArrayList<String> repos) {
     this.repos = repos;
   }
   
+  /**
+   * Sets {@link #names} to the given ArrayList of Strings.
+
+   * @param names The List of Strings, that describes the Names of the Folders for each Repository. 
+   *      These are the clear Names of each Repository instead of the Repository-Name itself.
+   * @since 1.0
+   */
   public void setNames(ArrayList<String> names) {
     this.names = names;
   }
   
+  /**
+   * The Main Method for this Application. This will start the Launcher.
+
+   * @param args  Unused, but has to be passed to the Launch-MEthod. Can be {@code null}.
+   * @since 1.0
+   */
   public static void main(String[] args) {
     GastroToolsLauncher.launch(args);
   }

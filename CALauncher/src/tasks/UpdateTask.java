@@ -10,7 +10,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
-
 import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
@@ -19,6 +18,7 @@ import util.AppDisplayArea;
 
 /**
  * A Task to check, if there is an update available for a specified Repository.
+
  * @author Haeldeus
  * @version 1.0
  */
@@ -78,13 +78,14 @@ public class UpdateTask extends Task<Void> {
   
   /**
    * The Launcher, that has started this Task. Used to restart a single Task via 
-   * {@link GastroToolsLauncher#startSpecificUpdateTask(int)}.
+   * {@link GastroToolsLauncher#startSpecificUpdateTasks(int)}.
    */
   private GastroToolsLauncher primary;
   
   /**
    * Creates a new Task, that will check for updates for the specified {@code repo} with the given 
    * {@code name}.
+
    * @param repo  The Repository that will be checked. This has to be the precise name of the 
    *      Repository since this Task will check for updates on the Version-Control-Site where the 
    *      Repository's Name is embedded into the Link.
@@ -98,10 +99,11 @@ public class UpdateTask extends Task<Void> {
    *      later used to check for already installed versions.
    * @param index The index of the Repository as it is seen in the List starting from the top, 
    *      where the first has the index 0. This is used to restart this task alone and not every 
-   *      other Task as well, which might have been successful even though this Task has failed to 
-   *      check for an Update.
+   *      other Task as well, which might have been executed successfully even though this Task has 
+   *      failed to check for an Update.
+
    * @param primary The GastroToolsLauncher, that started this Task. Is used to restart a single 
-   *      UpdateTask via {@link GastroToolsLauncher#startSpecificUpdateTask(int)}.
+   *      UpdateTask via {@link GastroToolsLauncher#startSpecificUpdateTasks(int)}.
    * @since 1.0
    * @see AppDisplayArea
    * @see GastroToolsLauncher
@@ -182,7 +184,9 @@ public class UpdateTask extends Task<Void> {
           /*
            * Restarts this Task without restarting all other Tasks.
            */
-          primary.startSpecificUpdateTask(index);
+          ArrayList<Integer> list = new ArrayList<Integer>();
+          list.add(index);
+          primary.startSpecificUpdateTasks(list);
         }  
       });
       /*
@@ -238,7 +242,9 @@ public class UpdateTask extends Task<Void> {
               /*
                * Restarts this Task.
                */
-              primary.startSpecificUpdateTask(index);
+              ArrayList<Integer> list = new ArrayList<Integer>();
+              list.add(index);
+              primary.startSpecificUpdateTasks(list);
             }  
           });
           /*
@@ -282,7 +288,9 @@ public class UpdateTask extends Task<Void> {
                   /*
                    * Restarts this Task.
                    */
-                  primary.startSpecificUpdateTask(index);
+                  ArrayList<Integer> list = new ArrayList<Integer>();
+                  list.add(index);
+                  primary.startSpecificUpdateTasks(list);
                 }  
               });
               /*
@@ -372,7 +380,7 @@ public class UpdateTask extends Task<Void> {
       oldVersions.add(st.nextToken());
     }
     /*
-     * Updates the User, that the published Version Information was checked.
+     * Informs the User, that the published Version Information was checked.
      */
     updateProgress(++counter, max);
     area.updateMessage("Version überprüft.");
@@ -380,7 +388,7 @@ public class UpdateTask extends Task<Void> {
     //Space for possible Additions, that might be necessary in the future between these Steps.
     
     /*
-     * Updates the User, that the Task will now check for an installed Version.
+     * Informs the User, that the Task will now check for an installed Version.
      */
     updateProgress(++counter, max);
     area.updateMessage("Überprüfe installierte Version...");
@@ -403,14 +411,14 @@ public class UpdateTask extends Task<Void> {
      */
     if (publishedVersion.contentEquals(version)) {
       /*
-       * Updates the User, that the latest Version is installed and disables the DownloadButton.
+       * Informs the User, that the latest Version is installed and disables the DownloadButton.
        */
       updateProgress(max, max);
       area.updateMessage("Neuste Version vorhanden!");
       area.switchDownloadButton(true);
     } else if (oldVersions.contains(version)) {
       /*
-       * Updates the User, that an update was found and enables the Download for this Update.
+       * Informs the User, that an update was found and enables the Download for this Update.
        */
       updateProgress(++counter, max + 1);
       area.updateMessage("Update gefunden!");
@@ -419,7 +427,7 @@ public class UpdateTask extends Task<Void> {
       updateProgress(max, max);
     } else {
       /*
-       * Updates the User, that the installed version might be flawed and recommends an Update.
+       * Informs the User, that the installed version might be flawed and recommends an Update.
        * Also enables the Download to be able to update the Version.
        */
       updateProgress(++counter, max + 1);
@@ -441,6 +449,7 @@ public class UpdateTask extends Task<Void> {
    * Checks the local Folder for a Version-File and reads the version-Number from it if it exists.
    * This is the only way to check for an installed version that is appropriate. Every other 
    * possibility would go beyond the scope of the Specification.
+
    * @return  {@code true}, if a version was read, {@code false} else.
    * @since 1.0
    */
