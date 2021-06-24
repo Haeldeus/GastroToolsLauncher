@@ -3,6 +3,7 @@ package util;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -100,42 +101,81 @@ public class AppDisplayArea {
    * @since 1.0
    */
   public BorderPane createDisplayArea() {
+    /*
+     * Creates a new BorderPane, that will inherit the DisplayArea.
+     */
     BorderPane bp = new BorderPane();
+    /*
+     * Creates a new Label, that will display the Application in this DisplayArea and adds it to 
+     * the top of the BorderPane.
+     */
     Label lbName = new Label(name);
     lbName.setMaxWidth(300);
     lbName.setAlignment(Pos.CENTER);
     bp.setTop(lbName);
     
+    /*
+     * Creates an ImageView for the Icon of the Application in this DisplayArea.
+     */
     Image img = new Image(pathToIcon);
     ImageView iw = new ImageView(img);
     iw.setFitWidth(50);
     iw.setFitHeight(50);
     
+    /*
+     * Creates a GridPane, that will contain the Icon and the Buttons for this DisplayArea.
+     * It will be added to the Center of the BorderPane later.
+     */
     GridPane grid = new GridPane();
     grid.setHgap(10);
     grid.setVgap(10);
     grid.setPadding(new Insets(10, 10, 10, 10));
+    /*
+     * Adds the ImageView to the Grid.
+     */
     grid.add(iw, 0, 0);
     
+    /*
+     * Creates a GridPane, that will contain all Buttons for this DisplayArea.
+     */
     GridPane buttonPane = new GridPane();
     buttonPane.setHgap(10);
     buttonPane.setVgap(10);
     buttonPane.setAlignment(Pos.CENTER);
+    
+    /*
+     * Adds a Start Button to the DisplayArea with the defined ActionHandler.
+     */
     //TODO: Replace Button Text with Icons.
     Button start = new Button("S");
     start.setOnAction(new EventHandler<ActionEvent>() {
+      @SuppressWarnings("unused") //Will be deleted as soon as the Input Stream Problem is fixed.
       @Override
       public void handle(ActionEvent arg0) {
+        /*
+         * If the path isn't an empty String, there is an executable File, that will be executed 
+         * and the Launcher will be closed afterwards. In case there wasn't an executable File, 
+         * nothing happens, except for an Error Message in the Label.
+         */
         if (!path.equals("")) {
           try {
             // Run a java application in a separate system process
             Process proc = Runtime.getRuntime().exec("java -jar " + path);
   
             // Then retrieve the process output
+            //TODO: Check if InputStreams can be added to the Console. (Delete SuppressWarnings!)
             InputStream in = proc.getInputStream();
             InputStream err = proc.getErrorStream();
+            OutputStream out = proc.getOutputStream();
+            /*
+             * Exits this Process with the default integer 0.
+             */
             System.exit(0);
           } catch (IOException e) {
+            /*
+             * This catch shouldn't happen. But in case a Path was set despite no executable File 
+             * exists, this catch is necessary.
+             */
             e.printStackTrace();
             messageLabel.setText("Fehler beim Starten von " + name + "!");
           }
@@ -148,10 +188,18 @@ public class AppDisplayArea {
     buttonPane.add(start, 0, 0);
     buttons.add(start);
     
+    /*
+     * Adds a Download Button to the Area. Since the Handler will be added later, when the 
+     * Download Path is known, it won't be added here.
+     */
     Button download = new Button("DL");
     buttonPane.add(download, 1, 0);
     buttons.add(download);
     
+    /*
+     * Adds a Delete Button to the Area. A Handler is added to it as well, which will delete the 
+     * Folder of this Application when pressed.
+     */
     Button delete = new Button("D");
     delete.setOnAction(new EventHandler<ActionEvent>() {
       @Override
@@ -164,17 +212,34 @@ public class AppDisplayArea {
     buttonPane.add(delete, 2, 0);
     buttons.add(delete);
     
+    /*
+     * Adds the Button Pane to the Grid and lets it fill the remaining space in the width.
+     */
     grid.add(buttonPane, 1, 0);
     GridPane.setFillWidth(buttonPane, true);
     
+    /*
+     * Adds the Grid to the BorderPane.
+     */
     bp.setCenter(grid);
     
+    /*
+     * Creates a new Grid where information can be displayed as well as a ProgressBar, that is 
+     * needed when the Application is updated.
+     * Adds the MessageLabel to this Grid.
+     */
     bottomGrid = new GridPane();
     bottomGrid.add(messageLabel, 0, 0);
     
+    /*
+     * Creates a new ProgressBar and adds it to the Grid.
+     */
     pb = new ProgressBar();
     bottomGrid.add(pb, 0, 1);
     
+    /*
+     * Adds the Grid to the Bottom of the BorderPane and returns said BorderPane afterwards.
+     */
     bp.setBottom(bottomGrid);
     return bp;
   }
@@ -212,9 +277,16 @@ public class AppDisplayArea {
    * @since 1.0
    */
   public void enableDownload(String downloadPath) {
+    /*
+     * Since the order of the Buttons is fixed, the Download Button can be called directly by 
+     * getting Button 1 from the ArrayList of Buttons.
+     */
     buttons.get(1).setOnAction(new EventHandler<ActionEvent>() {
       @Override
       public void handle(ActionEvent arg0) {
+        /*
+         * Testing Purposes. Will be deleted afterwards.
+         */
         System.out.println("Path: " + path);
         //TODO: Implement Download.
         prepareDownload();

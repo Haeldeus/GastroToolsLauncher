@@ -130,7 +130,8 @@ public class CheckerTask extends Task<Void> {
     try {
       while ((line = br.readLine()) != null) {
         /*
-         * Checks, if the 
+         * Checks, if the Process was cancelled. If yes, a default state will be given to the 
+         * ProgressTask.
          */
         if (isCancelled()) {
           Platform.runLater(new Runnable() {
@@ -246,7 +247,7 @@ public class CheckerTask extends Task<Void> {
    * called with the given Text, depending on the Type of Exception that was thrown.
    * <br> When the Operation to search for the List took too long, this Method will be called as 
    * well.
-   * <br> This Mthod will set all Fields in {@link #prt}, that require ArrayLists as Values to 
+   * <br> This Method will set all Fields in {@link #prt}, that require ArrayLists as Values to 
    * empty ArrayLists and sets {@link ProgressTask#success} to false, since no connection could be 
    * established. This way, this Task can end normally and the parent ProgressTask can continue as 
    * usual, but it will recognize, that there was an Error and defaults to a save state.

@@ -59,7 +59,7 @@ public class ProgressTask extends Task<Void> {
   
   /**
    * The Constructor for this Task. Will set the Fields to the given Parameters and prepares the 
-   * ProgressIndicator by initialising the {@link #index} and {@link #max}.
+   * ProgressIndicator by initializing the {@link #index} and {@link #max}.
 
    * @param updates The Label, that will display information to the User.
    * @param primary The Launcher-Object, that called this Task.

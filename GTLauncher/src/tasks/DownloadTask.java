@@ -333,7 +333,7 @@ public class DownloadTask extends Task<Void> {
      */
     double needed = (downloadLength - bytesDownloaded) / perf;
     /*
-     * Stores the perf-Value as a String, that describes it in kbit/s instead of B/s.
+     * Stores the perf-Value as a String, that describes it in kbit/s instead of B/ms.
      */
     String performance = "" + (7.8125 * perf);
     /*

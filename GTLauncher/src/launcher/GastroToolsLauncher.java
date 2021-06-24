@@ -117,15 +117,36 @@ public class GastroToolsLauncher extends Application {
    */
   private void writeVersion() {
     try {
+      /*
+       * Checks, if the current path has an "/app"-String in it. In this case, the Launcher was 
+       * started directly and not by the Updater. Still, this Method should change the path, since 
+       * there might be wrong, old or custom Folders in the Directory and this is one way to lower 
+       * the Risk of corruption in the Files.
+       */
       int index = path.lastIndexOf(File.separator + "app");
+      /*
+       * Erases the last "/app"-String from the Path and everything after that.
+       */
       if (index >= 0) {
         path = path.substring(0, index);
       }
+      /*
+       * Concats "/app/" to the String.
+       */
       path = path.concat(File.separator + "app" + File.separator);
+      //TODO: mkdirs()
+      /*
+       * Creates a new File called "Version.txt" in the newly created app-Folder.
+       */
       FileWriter fw = new FileWriter(path + "Version.txt");
+      System.out.println("DEBUG: Created File at: " + path + "Version.txt");
+      /*
+       * Writes the current version into the File and closes the FileWriter afterwards.
+       */
       fw.write("" + version);
       fw.close(); 
     } catch (IOException e) {
+      e.printStackTrace();
       //Nothing to do.
     } 
   }
@@ -272,26 +293,66 @@ public class GastroToolsLauncher extends Application {
          * AppDisplayAreas differently, so this check is required.
          */
         if (connection) {
-          //TODO: Add Commentary
+          /*
+           * Iterates through the list of Repositories and adds all of them to the Launcher.
+           */
           for (int i = 0; i < names.size(); i++) {
+            /*
+             * Creates a new Area, which will show the Repository's executable File as well as a 
+             * Possibility to download the latest Patch and delete the whole Folder.
+             */
             AppDisplayArea area = new AppDisplayArea();
+            /*
+             * Sets the Name of the Area to the Name of the Repository. This will be shown as Title 
+             * for this Area.
+             */
             area.setName(names.get(i));
+            /*
+             * A boolean, which will determine if an executable File was detected in the Folder.
+             */
             boolean startDisable = false;
-            if (repos.get(i) == "" || repos.get(i) == null) {
+            /*
+             * Checks, if a valid executable Filename was entered into the list and added to the 
+             * Hard Drive of the Client. If not, the Client is informed and the startButton will be 
+             * disabled by the use of the boolean above.
+             */
+            if (repos.get(i) == "" || repos.get(i) == null 
+                || !(new File(names.get(i) + File.separator + repos.get(i)).exists())) {
               area.setPath("");
               area.updateMessage("Keine ausführbare Datei gefunden!");
               startDisable = true;
+              /*
+               * If a valid executable Filename was added to the List and this File is on the Hard 
+               * Drive, the Path of the DisplayArea will be set to this File.
+               */
             } else {
               area.setPath(names.get(i) + File.separator + repos.get(i));
             }
-            area.setPathToIcon("/res/Default.png"); //TODO: Add real Icon.
+            /*
+             * Adds an Icon to the AppDisplayArea.
+             */
+            //TODO: Add real Icon.
+            area.setPathToIcon("/res/Default.png");
+            /*
+             * Adds the created Area to the Grid and enables/disables the buttons accordingly.
+             */
             grid.add(area.createDisplayArea(), 0, i);
             area.switchButtons(startDisable, false, false);
+            /*
+             * Adds the created area to the List of Areas.
+             */
             displayAreas.put(area.getName(), area);
           }
+          /*
+           * Starts the Task to check for Updates for all Areas.
+           */
           startCheckUpdateTasks();
         } else {
-          //TODO: Add Commentary
+          /*
+           * In case that no connection was found, there might be different steps to ensure 
+           * functionality. As of now, the only difference is in the switchButtons-Method, as 
+           * "download" has to be disabled by default.
+           */
           for (int i = 0; i < names.size(); i++) {
             AppDisplayArea area = new AppDisplayArea();
             area.setName(names.get(i));
@@ -310,6 +371,9 @@ public class GastroToolsLauncher extends Application {
             displayAreas.put(area.getName(), area);
           }
         }
+        /*
+         * Creates a ScrollPane, which enables scrolling through all DisplayAreas.
+         */
         ScrollPane sp = new ScrollPane();
         sp.setContent(grid);
         bp.setCenter(sp);
@@ -318,8 +382,6 @@ public class GastroToolsLauncher extends Application {
     });
   }
   
-  //TODO: Add Commentary to all following Methods.
-  
   /**
    * Scans all added Repositories for a version File and checks, if a newer version is available to 
    * download.
@@ -327,13 +389,27 @@ public class GastroToolsLauncher extends Application {
    * @since 1.0 
    */
   private void startCheckUpdateTasks() {
+    /*
+     * Iterates through all Repositories added by the CheckerTask to check for updates.
+     */
     for (int i = 0; i < repos.size(); i++) {
+      /*
+       * Creates a new UpdateTask for this Repository with the needed parameters.
+       */
       UpdateTask task = new UpdateTask(repos.get(i), names.get(i), displayAreas.get(names.get(i)), 
           path, i, this);
+      /*
+       * Binds the ProgressBar of the DisplayArea to the UpdateTask.
+       */
       displayAreas.get(names.get(i)).bindProgressBar(task);
+      /*
+       * Starts the Task. Also starts a second Thread to interrupt the Task after a given amount of 
+       * time.
+       */
       new Thread(task).start();
       new Thread(() -> {
         try {
+          //TODO: Add possibility to change the timeout of the CheckerTask. (Setting?)
           Thread.sleep(5000);  
         } catch (InterruptedException e) {
           //Testing Purposes, shouldn't be called.
@@ -343,7 +419,7 @@ public class GastroToolsLauncher extends Application {
       }).start();
     }
   }
-  
+
   /**
    * Starts the UpdateTasks specified by their index in the given ArrayList {@code indices}. This 
    * is used to only start a subset of the Tasks, which is useful, when having to manually update 
@@ -354,6 +430,11 @@ public class GastroToolsLauncher extends Application {
    * @since 1.0
    */
   public void startSpecificUpdateTasks(ArrayList<Integer> indices) {
+    /*
+     * Basically the same as startCheckUpdateTasks(), except for this Iteration over the given 
+     * ArrayList, that contains all indices for the UpdateTasks to start. Every other Task won't be 
+     * started.
+     */
     for (int index : indices) {
       UpdateTask task = new UpdateTask(repos.get(index), names.get(index), 
           displayAreas.get(names.get(index)), path, index, this);
@@ -361,6 +442,7 @@ public class GastroToolsLauncher extends Application {
       new Thread(task).start();
       new Thread(() -> {
         try {
+          //TODO: Add possibility to change the timeout of the CheckerTask. (Setting?)
           Thread.sleep(5000);  
         } catch (InterruptedException e) {
           //Testing Purposes, shouldn't be called.
@@ -381,28 +463,75 @@ public class GastroToolsLauncher extends Application {
     Platform.runLater(new Runnable() {
       @Override
       public void run() {
+        /*
+         * Creates a new File, which is used to check for all Folders in the working Directory. 
+         * These will be saved in the created ArrayList.
+         */
         File f = new File(path);
         ArrayList<String> dirs = new ArrayList<String>();
+        /*
+         * Lists all Files and Folders in the current Directory and iterates through this List.
+         */
         for (String s : f.list()) {
+          /*
+           * If a File contains a dot, it isn't a Folder but a File and can be disregarded.
+           */
           if (!s.contains(".")) {
+            /*
+             * Since there is no dot, the current File is a Directory and will be added to dirs.
+             */
             dirs.add(s);
           }
         }
+        /*
+         * Sets the created List as Names of Repositories.
+         */
         setNames(dirs);
+        /*
+         * Creates a new ArrayList, where all executable Files will be stored in.
+         */
         ArrayList<String> jarList = new ArrayList<String>();
+        /*
+         * Goes through all Directories and checks for executable Files.
+         */
         for (String dir : dirs) {
+          /*
+           * Used to exit the Loop, whenever an executable File was found.
+           */
           boolean added = false;
+          /*
+           * Concatenates the directory's Name to the path to list all Files in it.
+           */
           f = new File(path + File.separator + dir);
           for (String file : f.list()) {
-            if (file.contains(".jar")) {
+            /*
+             * Checks, if an executable was added to the List, if yes this exits the Loop.
+             */
+            if (added) {
+              break;
+              /*
+               * Currently, only .jar Files are considered as executable Files.
+               */
+            } else if (file.contains(".jar")) {
+              /*
+               * Adds the File to the List and sets added to true to exit the Loop.
+               */
               jarList.add(file);
               added = true;
             }
           }
+          /*
+           * In case no executable was found, an empty String is added which will be identified 
+           * by Launcher when building the Area as a no executable.
+           */
           if (!added) {
             jarList.add("");
           }
         }
+        /*
+         * Sets the List as List of Repositories. Also builds the Launcher with >false< to let him 
+         * know, that there is no connection.
+         */
         setRepos(jarList);
         buildLauncher(false);
       }

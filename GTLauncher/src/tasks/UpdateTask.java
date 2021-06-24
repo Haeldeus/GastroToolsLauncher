@@ -78,7 +78,7 @@ public class UpdateTask extends Task<Void> {
   
   /**
    * The Launcher, that has started this Task. Used to restart a single Task via 
-   * {@link GastroToolsLauncher#startSpecificUpdateTasks(int)}.
+   * {@link GastroToolsLauncher#startSpecificUpdateTasks(ArrayList)}.
    */
   private GastroToolsLauncher primary;
   
@@ -103,7 +103,7 @@ public class UpdateTask extends Task<Void> {
    *      failed to check for an Update.
 
    * @param primary The GastroToolsLauncher, that started this Task. Is used to restart a single 
-   *      UpdateTask via {@link GastroToolsLauncher#startSpecificUpdateTasks(int)}.
+   *      UpdateTask via {@link GastroToolsLauncher#startSpecificUpdateTasks(ArrayList)}.
    * @since 1.0
    * @see AppDisplayArea
    * @see GastroToolsLauncher
