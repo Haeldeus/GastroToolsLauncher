@@ -37,7 +37,7 @@ public class GastroToolsLauncher extends Application {
    * The Version of this Launcher. This is needed to write the version Number on the hard disc, so 
    * the Updater can keep this Launcher updated.
    */
-  private static final String version = "0.9";
+  private static final String version = "0.98";
   
   /**
    * The Label, that will display Messages to the User or general information.
@@ -125,16 +125,16 @@ public class GastroToolsLauncher extends Application {
        */
       int index = path.lastIndexOf(File.separator + "app");
       /*
-       * Erases the last "/app"-String from the Path and everything after that.
+       * Erases the last "app"-String from the Path and everything after that.
        */
       if (index >= 0) {
-        path = path.substring(0, index);
+        path = path.substring(0, index + 1);
       }
-      /*
-       * Concats "/app/" to the String.
-       */
-      path = path.concat(File.separator + "app" + File.separator);
-      //TODO: mkdirs()
+      path = path.concat("app" + File.separator);
+      File f = new File(path);
+      if (!f.exists()) {
+        f.mkdirs();
+      }
       /*
        * Creates a new File called "Version.txt" in the newly created app-Folder.
        */
@@ -316,10 +316,13 @@ public class GastroToolsLauncher extends Application {
              * Hard Drive of the Client. If not, the Client is informed and the startButton will be 
              * disabled by the use of the boolean above.
              */
+            System.out.println("DEBUG: Exec File at: " + names.get(i) + File.separator + repos.get(i) + ".jar");
             if (repos.get(i) == "" || repos.get(i) == null 
-                || !(new File(names.get(i) + File.separator + repos.get(i)).exists())) {
+                || !(new File(names.get(i) + File.separator + repos.get(i) + ".jar").exists())) {
               area.setPath("");
               area.updateMessage("Keine ausführbare Datei gefunden!");
+              area.setRepo("");
+              System.out.println("DEBUG: No exec found");
               startDisable = true;
               /*
                * If a valid executable Filename was added to the List and this File is on the Hard 
@@ -327,6 +330,7 @@ public class GastroToolsLauncher extends Application {
                */
             } else {
               area.setPath(names.get(i) + File.separator + repos.get(i));
+              area.setRepo(repos.get(i));
             }
             /*
              * Adds an Icon to the AppDisplayArea.
@@ -393,18 +397,35 @@ public class GastroToolsLauncher extends Application {
      * Iterates through all Repositories added by the CheckerTask to check for updates.
      */
     for (int i = 0; i < repos.size(); i++) {
+      
       /*
-       * Creates a new UpdateTask for this Repository with the needed parameters.
+       * Gets the current displayArea, that will be checked for updates.
        */
-      UpdateTask task = new UpdateTask(repos.get(i), names.get(i), displayAreas.get(names.get(i)), 
-          path, i, this);
+      AppDisplayArea area = displayAreas.get(names.get(i));
+
+      /*
+       * The UpdateTask, that will be configured and initialized in the next step.
+       */
+      UpdateTask task;
+      /*
+       * If the Start Button was disabled, no executable File was found. Therefore, no check should 
+       * be performed, instead a Download should be offered. This is done via the AutoUpdate 
+       * parameter in the UpdateTask.
+       */
+      if (! area.isStartDisabled()) {
+        task = new UpdateTask(repos.get(i), names.get(i), 
+            displayAreas.get(names.get(i)), path, i, this, false);
+      } else {
+        task = new UpdateTask(repos.get(i), names.get(i), 
+            displayAreas.get(names.get(i)), path, i, this, true);
+      }
       /*
        * Binds the ProgressBar of the DisplayArea to the UpdateTask.
        */
-      displayAreas.get(names.get(i)).bindProgressBar(task);
+      area.bindProgressBar(task);
       /*
-       * Starts the Task. Also starts a second Thread to interrupt the Task after a given amount of 
-       * time.
+       * Starts the Task. Also starts a second Thread to interrupt the Task after a given amount 
+       * of time.
        */
       new Thread(task).start();
       new Thread(() -> {
@@ -436,8 +457,27 @@ public class GastroToolsLauncher extends Application {
      * started.
      */
     for (int index : indices) {
-      UpdateTask task = new UpdateTask(repos.get(index), names.get(index), 
-          displayAreas.get(names.get(index)), path, index, this);
+      /*
+       * Gets the current displayArea, that will be checked for updates.
+       */
+      AppDisplayArea area = displayAreas.get(names.get(index));
+
+      /*
+       * The UpdateTask, that will be configured and initialized in the next step.
+       */
+      UpdateTask task;
+      /*
+       * If the Start Button was disabled, no executable File was found. Therefore, no check should 
+       * be performed, instead a Download should be offered. This is done via the AutoUpdate 
+       * parameter in the UpdateTask.
+       */
+      if (! area.isStartDisabled()) {
+        task = new UpdateTask(repos.get(index), names.get(index), 
+            displayAreas.get(names.get(index)), path, index, this, false);
+      } else {
+        task = new UpdateTask(repos.get(index), names.get(index), 
+            displayAreas.get(names.get(index)), path, index, this, true);
+      }
       displayAreas.get(names.get(index)).bindProgressBar(task);
       new Thread(task).start();
       new Thread(() -> {

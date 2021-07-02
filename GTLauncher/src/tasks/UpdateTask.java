@@ -83,6 +83,11 @@ public class UpdateTask extends Task<Void> {
   private GastroToolsLauncher primary;
   
   /**
+   * A boolean value, if an update should be performed, regardless of the version File.
+   */
+  private boolean autoUpdate;
+  
+  /**
    * Creates a new Task, that will check for updates for the specified {@code repo} with the given 
    * {@code name}.
 
@@ -101,16 +106,17 @@ public class UpdateTask extends Task<Void> {
    *      where the first has the index 0. This is used to restart this task alone and not every 
    *      other Task as well, which might have been executed successfully even though this Task has 
    *      failed to check for an Update.
-
    * @param primary The GastroToolsLauncher, that started this Task. Is used to restart a single 
    *      UpdateTask via {@link GastroToolsLauncher#startSpecificUpdateTasks(ArrayList)}.
+   * @param autoUpdate  A Boolean value, if an update is necessary, regardless of installed 
+   *      version. This is the case, if no executable File was found.
    * @since 1.0
    * @see AppDisplayArea
    * @see GastroToolsLauncher
    * @see Task
    */
   public UpdateTask(String repo, String name, AppDisplayArea area, String localPath, int index, 
-      GastroToolsLauncher primary) {
+      GastroToolsLauncher primary, boolean autoUpdate) {
     this.repo = repo;
     this.name = name;
     this.localPath = localPath;
@@ -124,6 +130,7 @@ public class UpdateTask extends Task<Void> {
     this.counter = 0;
     this.index = index;
     this.primary = primary;
+    this.autoUpdate = autoUpdate;
   }
   
   @Override
@@ -207,7 +214,10 @@ public class UpdateTask extends Task<Void> {
      * it will be hidden in this step.
      */
     if (!connected) {
-      area.hideProgessBar();
+      area.hideProgressBar();
+      area.setPath(localPath + name + File.separator + repo + ".jar");
+      System.out.println("DEBUG1: Path set:" + localPath + name + File.separator + repo + ".jar");
+      System.out.println("DEBUG1: Path in area: " + area.getPath());
       return null;
     }
     /*
@@ -253,6 +263,9 @@ public class UpdateTask extends Task<Void> {
            * Also stops the further execution of this Task by returning null.
            */
           area.updateMessage("Zeitüberschreitung! Hier klicken für Neuversuch");
+          area.setPath(localPath + name + File.separator + repo + ".jar");
+          System.out.println("DEBUG2: Path set:" + localPath + name + File.separator + repo + ".jar");
+          System.out.println("DEBUG2: Path in area: " + area.getPath());
           return null;
         }
         /*
@@ -299,6 +312,9 @@ public class UpdateTask extends Task<Void> {
                * Also stops the further execution of this Task by returning null.
                */
               area.updateMessage("Zeitüberschreitung! Hier klicken für Neuversuch");
+              area.setPath(localPath + name + File.separator + repo + ".jar");
+              System.out.println("DEBUG3: Path set:" + localPath + name + File.separator + repo + ".jar");
+              System.out.println("DEBUG3: Path in area: " + area.getPath());
               return null;
             }
             /*
@@ -398,42 +414,62 @@ public class UpdateTask extends Task<Void> {
      * the User and stops the Task.
      */
     if (!checkVersion()) {
+      System.out.println("DEBUG: No version found");
       updateProgress(max, max);
       area.updateMessage("Keine Versionsdatei gefunden. Neuinstallation empfohlen!");
-      area.hideProgessBar();
+      area.enableDownload("https://github.com/Haeldeus/" + repo + "/releases/download/v" 
+          + publishedVersion + "/" + name + ".jar", version);
+      area.hideProgressBar();
+      area.setPath(localPath + name + File.separator + repo + ".jar");
+      System.out.println("DEBUG4: Path set:" + localPath + name + File.separator + repo + ".jar");
+      System.out.println("DEBUG4: Path in area: " + area.getPath());
       return null;
     }
     
-    /*
-     * Checks, if the latest published Version is installed or an older version is installed. In 
-     * any other case (wrong version Information, or some yet unknown errors), this If-Clause will 
-     * go to the else-Part.
-     */
-    if (publishedVersion.contentEquals(version)) {
+    System.out.println("DEBUG: Version check completed");
+    
+    if (!autoUpdate) {
       /*
-       * Informs the User, that the latest Version is installed and disables the DownloadButton.
+       * Checks, if the latest published Version is installed or an older version is installed. In 
+       * any other case (wrong version Information, or some yet unknown errors), this If-Clause 
+       * will go to the else-Part.
        */
-      updateProgress(max, max);
-      area.updateMessage("Neuste Version vorhanden!");
-      area.switchDownloadButton(true);
-    } else if (oldVersions.contains(version)) {
-      /*
-       * Informs the User, that an update was found and enables the Download for this Update.
-       */
-      updateProgress(++counter, max + 1);
-      area.updateMessage("Update gefunden!");
-      area.enableDownload("https://github.com/Haeldeus/" + repo + "/releases/download/v" 
-          + publishedVersion + "/" + name + ".jar");
-      updateProgress(max, max);
+      if (publishedVersion.contentEquals(version)) {
+        /*
+         * Informs the User, that the latest Version is installed and disables the DownloadButton.
+         */
+        updateProgress(max, max);
+        area.updateMessage("Neuste Version vorhanden!");
+        area.switchDownloadButton(true);
+        System.out.println("DEBUG: Newest Version installed");
+      } else if (oldVersions.contains(version)) {
+        /*
+         * Informs the User, that an update was found and enables the Download for this Update.
+         */
+        System.out.println("DEBUG: Old version found");
+        updateProgress(++counter, max + 1);
+        area.updateMessage("Update gefunden!");
+        area.enableDownload("https://github.com/Haeldeus/" + repo + "/releases/download/v" 
+            + publishedVersion + "/" + name + ".jar", version);
+        updateProgress(max, max);
+      } else {
+        /*
+         * Informs the User, that the installed version might be flawed and recommends an Update.
+         * Also enables the Download to be able to update the Version.
+         */
+        System.out.println("DEBUG: Flawed version found");
+        updateProgress(++counter, max + 1);
+        area.updateMessage("Fehlerhafte Versionsnummer gefunden. Update empfohlen!");
+        area.enableDownload("https://github.com/Haeldeus/" + repo + "/releases/download/v" 
+            + publishedVersion + "/" + name + ".jar", version);
+        updateProgress(max, max);
+      }
     } else {
-      /*
-       * Informs the User, that the installed version might be flawed and recommends an Update.
-       * Also enables the Download to be able to update the Version.
-       */
+      System.out.println("DEBUG: AutoUpdate triggered");
       updateProgress(++counter, max + 1);
-      area.updateMessage("Fehlerhafte Versionsnummer gefunden. Update empfohlen!");
+      area.updateMessage("Fehlerhafte Installation gefunden. Update notwendig!");
       area.enableDownload("https://github.com/Haeldeus/" + repo + "/releases/download/v" 
-          + publishedVersion + "/" + name + ".jar");
+          + publishedVersion + "/" + name + ".jar", version);
       updateProgress(max, max);
     }
     /*
@@ -441,7 +477,9 @@ public class UpdateTask extends Task<Void> {
      * ProgressBar, since this Task is finished and stops this Task.
      */
     area.setPath(localPath + name + File.separator + repo + ".jar");
-    area.hideProgessBar();
+    System.out.println("DEBUG5: Path set:" + localPath + name + File.separator + repo + ".jar");
+    System.out.println("DEBUG5: Path in area: " + area.getPath());
+    area.hideProgressBar();
     return null;
   }
   

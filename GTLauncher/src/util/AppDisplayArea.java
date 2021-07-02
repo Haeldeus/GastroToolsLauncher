@@ -18,6 +18,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import tasks.DownloadTask;
 
 /**
  * The Area that displays each single Application added to the Launcher. Every Area can also 
@@ -62,6 +63,11 @@ public class AppDisplayArea {
    * The Grid, that contains the bottom Part of the DisplayArea.
    */
   private GridPane bottomGrid;
+  
+  /**
+   * The name of the Repository for this Application.
+   */
+  private String repo;
 
   /**
    * A Constructor for the Area. This will set all Fields to the given values and initiates 
@@ -70,12 +76,14 @@ public class AppDisplayArea {
    * @param name  The name of the Application in this Area.
    * @param pathToIcon  The Path to the Icon for the Application.
    * @param path  The Path to the executable File.
+   * @param repo  The Name of the Repository for this Application. Used for downloading updates.
    * @since 1.0
    */
-  public AppDisplayArea(String name, String pathToIcon, String path) {
+  public AppDisplayArea(String name, String pathToIcon, String path, String repo) {
     this.name = name;
     this.path = path;
     this.pathToIcon = pathToIcon;
+    this.repo = repo;
     messageLabel = new Label("Messages will be shown here");
     buttons = new ArrayList<Button>();
   }
@@ -90,6 +98,7 @@ public class AppDisplayArea {
     this.setPathToIcon("");
     this.setName("Placeholder");
     this.setPath("");
+    this.setRepo("");
     messageLabel = new Label("Messages will be shown here");
     buttons = new ArrayList<Button>();
   }
@@ -248,9 +257,17 @@ public class AppDisplayArea {
    * Prepares the Area for the Download by removing all unwanted content from the BottomGrid and 
    * adding a ProgressBar to it.
 
+   * @param downloadPath  The URL to the File to be downloaded.
+   * @param version The Version of the File to be downloaded.
    * @since 1.0
    */
-  private void prepareDownload() {
+  private void prepareDownload(String downloadPath, String version) {
+    
+    /*
+     * Adds two new Labels to the bottomGrid to display information to the Client.
+     */
+    Label updates = new Label();
+    Label length = new Label();
     Platform.runLater(new Runnable() {
       @Override
       public void run() {
@@ -265,6 +282,45 @@ public class AppDisplayArea {
          */
         pb = new ProgressBar();
         bottomGrid.add(pb, 0, 0);
+        
+        bottomGrid.add(updates, 0, 1);
+        
+        bottomGrid.add(length, 0, 2);
+        
+      }
+    });
+    DownloadTask task = new DownloadTask(downloadPath, new File(path), updates, length, 
+        version, this);
+    bindProgressBar(task);
+    new Thread(task).start();
+  }
+  
+  /**
+   * The Method to be called, when the download of the Application was finished, either 
+   * successfully or failed/timeout.
+
+   * @param text  The Text, that will be displayed to the User after editing the Area.
+   * @since 1.0
+   */
+  public void downloadFinished(String text) {
+    Platform.runLater(new Runnable() {
+      @Override
+      public void run() {
+        /*
+         * Removes the first Child from the bottomGrid until there are no more Children to remove.
+         */
+        while (bottomGrid.getChildren().size() != 0) {
+          bottomGrid.getChildren().remove(0);
+        }
+        
+        messageLabel.setText(text);
+        bottomGrid.add(messageLabel, 0, 0);
+        
+        pb = new ProgressBar();
+        bottomGrid.add(pb, 0, 1);
+        hideProgressBar();
+        
+        switchButtons(false, true, false);
       }
     });
   }
@@ -276,7 +332,10 @@ public class AppDisplayArea {
    * @param downloadPath  The Path to the File to be downloaded.
    * @since 1.0
    */
-  public void enableDownload(String downloadPath) {
+  public void enableDownload(String downloadPath, String version) {
+    System.out.println("DEBUG: Came to Download");
+    System.out.println("DEBUG: Path: " + path);
+    switchDownloadButton(false);
     /*
      * Since the order of the Buttons is fixed, the Download Button can be called directly by 
      * getting Button 1 from the ArrayList of Buttons.
@@ -287,11 +346,8 @@ public class AppDisplayArea {
         /*
          * Testing Purposes. Will be deleted afterwards.
          */
-        System.out.println("Path: " + path);
-        //TODO: Implement Download.
-        prepareDownload();
-        messageLabel.setText("Download ist bislang noch nicht implementiert. Bitte manuell den "
-            + "Ordner aktualisieren.");
+        System.out.println("DEBUG: Path: " + path);
+        prepareDownload(downloadPath, version);
       }     
     });
   }
@@ -334,7 +390,7 @@ public class AppDisplayArea {
 
    * @since 1.0
    */
-  public void hideProgessBar() {
+  public void hideProgressBar() {
     Platform.runLater(new Runnable() {
       @Override
       public void run() {
@@ -421,9 +477,11 @@ public class AppDisplayArea {
    */
   public void setPath(String path) {
     this.path = path;
-    File pathEx = new File(this.path);
-    if (!pathEx.exists()) {
-      this.path = "";
+    if (path != "") {
+      File pathEx = new File(this.path.substring(0, path.lastIndexOf(File.separator)));
+      if (!pathEx.exists()) {
+        pathEx.mkdirs();
+      }
     }
   }
   
@@ -449,5 +507,38 @@ public class AppDisplayArea {
    */
   public void switchDownloadButton(boolean disable) {
     this.buttons.get(1).setDisable(disable);
+  }
+  
+  /**
+   * Returns, if the Start Button is disabled. This is used to prevent the Update Task from 
+   * scanning for updates for an Application, that is corrupted.
+
+   * @return  {@code true}, if the Start Button is disabled, {@code false} if it is enabled.
+   * @since 1.0
+   */
+  public boolean isStartDisabled() {
+    return this.buttons.get(0).isDisabled();
+  }
+
+  /**
+   * Returns the Name of the Repository.
+
+   * @return  The Name of the Repository for this Application.
+   * @see #repo
+   * @since 1.0
+   */
+  public String getRepo() {
+    return repo;
+  }
+
+  /**
+   * Sets the Name of the Repository to the given String.
+
+   * @param repo  The new Name of the Repository.
+   * @see #repo
+   * @since 1.0
+   */
+  public void setRepo(String repo) {
+    this.repo = repo;
   }
 }

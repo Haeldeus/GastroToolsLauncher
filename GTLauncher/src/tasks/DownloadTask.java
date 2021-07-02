@@ -20,11 +20,11 @@ import java.nio.file.Paths;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
+import util.AppDisplayArea;
 
-//TODO: Rewrite this Task to download the Applications and not the Launcher, since this was copied from the Updater.
 
 /**
- * The Task, that will control the Download of the Launcher, if it should be updated or freshly 
+ * The Task, that will control the Download of an Application, if it should be updated or freshly 
  * downloaded.
 
  * @author Haeldeus
@@ -76,6 +76,12 @@ public class DownloadTask extends Task<Void> {
   private String version;
   
   /**
+   * The AppDisplayArea, this Task was called from. Used to signal the Area, that the Download has 
+   * finished and the Area can be altered again.
+   */
+  private AppDisplayArea area;
+  
+  /**
    * The Constructor for this Task. Sets all Fields to the given Parameters.
 
    * @param downloadUrl The URL to download the Launcher from.
@@ -83,25 +89,30 @@ public class DownloadTask extends Task<Void> {
    * @param updates The Label, that will display Messages to the User.
    * @param length The Label, that will display Messages about the remaining time to the User.
    * @param version The Version-String, that defines the version to be downloaded.
+   * @param area  The AppDisplayArea, this DownloadTask was called from.
    * @since 1.0
    */
-  public DownloadTask(String downloadUrl, File file, Label updates, Label length, String version) {
+  public DownloadTask(String downloadUrl, File file, Label updates, Label length, String version, 
+      AppDisplayArea area) {
     this.outputFile = file;
     this.downloadUrl = downloadUrl;
     this.updates = updates;
     this.length = length;
     this.version = version;
+    this.area = area;
   }
   
   @Override
   protected Void call() throws Exception {
-
+    
     /*
      * Saves the Path of the File in a new String. This path is saved with the direct Folder, the 
-     * File is in as last part of the String ("dirA/dirB/file.end" will be saved as "dirA/dirB/").
+     * File is in as the last part of the String ("dirA/dirB/file.end" will be saved as 
+     * "dirA/dirB/"). If the path doesn't exist yet, it will be created.
      */
     String p = outputFile.getAbsolutePath().substring(0, 
         outputFile.getAbsolutePath().lastIndexOf(File.separator) + 1);
+    new File(p).mkdirs();
     
     /*
      * Saves the name of the Application to be downloaded as a String.
@@ -197,6 +208,7 @@ public class DownloadTask extends Task<Void> {
      * and returns null in that case to stop the further execution of the Task.
      */
     if (isCancelled()) {
+      area.downloadFinished("Download unterbrochen!");
       return null;
     }
 
@@ -220,6 +232,7 @@ public class DownloadTask extends Task<Void> {
     } catch (Exception e) {
       e.printStackTrace();
     }
+    area.downloadFinished("Download erfolgreich abgeschlossen.");
     return null;
   }
 
