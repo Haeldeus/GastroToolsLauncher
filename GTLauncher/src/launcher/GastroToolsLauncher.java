@@ -37,7 +37,7 @@ public class GastroToolsLauncher extends Application {
    * The Version of this Launcher. This is needed to write the version Number on the hard disc, so 
    * the Updater can keep this Launcher updated.
    */
-  private static final String version = "0.98";
+  private static final String version = "0.981";
   
   /**
    * The Label, that will display Messages to the User or general information.

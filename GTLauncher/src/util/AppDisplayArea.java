@@ -14,6 +14,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -156,7 +157,13 @@ public class AppDisplayArea {
      * Adds a Start Button to the DisplayArea with the defined ActionHandler.
      */
     //TODO: Replace Button Text with Icons.
-    Button start = new Button("S");
+    Button start = new Button();    
+    Image startImg = new Image("/res/Start.png");
+    ImageView startView = new ImageView(startImg);
+    startView.setFitWidth(20);
+    startView.setFitHeight(20);
+    start.setTooltip(new Tooltip("Anwendung starten"));
+    start.setGraphic(startView);
     start.setOnAction(new EventHandler<ActionEvent>() {
       @SuppressWarnings("unused") //Will be deleted as soon as the Input Stream Problem is fixed.
       @Override
@@ -201,7 +208,13 @@ public class AppDisplayArea {
      * Adds a Download Button to the Area. Since the Handler will be added later, when the 
      * Download Path is known, it won't be added here.
      */
-    Button download = new Button("DL");
+    Button download = new Button();    
+    Image downloadImg = new Image("/res/Download.png");
+    ImageView downloadView = new ImageView(downloadImg);
+    downloadView.setFitWidth(20);
+    downloadView.setFitHeight(20);
+    download.setTooltip(new Tooltip("Neue Version herunterladen"));
+    download.setGraphic(downloadView);
     buttonPane.add(download, 1, 0);
     buttons.add(download);
     
@@ -209,7 +222,13 @@ public class AppDisplayArea {
      * Adds a Delete Button to the Area. A Handler is added to it as well, which will delete the 
      * Folder of this Application when pressed.
      */
-    Button delete = new Button("D");
+    Button delete = new Button();    
+    Image deleteImg = new Image("/res/Delete.png");
+    ImageView deleteView = new ImageView(deleteImg);
+    deleteView.setFitWidth(20);
+    deleteView.setFitHeight(20);
+    delete.setTooltip(new Tooltip("Anwendung löschen"));
+    delete.setGraphic(deleteView);
     delete.setOnAction(new EventHandler<ActionEvent>() {
       @Override
       public void handle(ActionEvent arg0) {
