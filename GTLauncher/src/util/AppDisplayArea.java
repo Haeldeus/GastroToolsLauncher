@@ -176,7 +176,8 @@ public class AppDisplayArea {
         if (!path.equals("")) {
           try {
             // Run a java application in a separate system process
-            Process proc = Runtime.getRuntime().exec("java -jar " + path);
+            Process proc = Runtime.getRuntime().exec("java -jar " + path, null, 
+                new File(path.substring(0, path.lastIndexOf(File.separator))));
   
             // Then retrieve the process output
             //TODO: Check if InputStreams can be added to the Console. (Delete SuppressWarnings!)
@@ -200,7 +201,7 @@ public class AppDisplayArea {
               + "vorhanden ist!");
         }
       }    
-    });
+    }); 
     buttonPane.add(start, 0, 0);
     buttons.add(start);
     

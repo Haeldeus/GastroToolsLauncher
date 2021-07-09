@@ -3,6 +3,7 @@ package launcher;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,10 +35,10 @@ import util.AppDisplayArea;
 public class GastroToolsLauncher extends Application {
 
   /**
-   * The Version of this Launcher. This is needed to write the version Number on the hard disc, so 
+   * The Version of this Launcher. This is needed to write the version Number on the hard drive, so 
    * the Updater can keep this Launcher updated.
    */
-  private static final String version = "0.981";
+  private static final String version = "0.99";
   
   /**
    * The Label, that will display Messages to the User or general information.
@@ -117,6 +118,7 @@ public class GastroToolsLauncher extends Application {
    */
   private void writeVersion() {
     try {
+      //TODO: Check if replacement of "app" String is still necessary
       /*
        * Checks, if the current path has an "/app"-String in it. In this case, the Launcher was 
        * started directly and not by the Updater. Still, this Method should change the path, since 
@@ -128,9 +130,9 @@ public class GastroToolsLauncher extends Application {
        * Erases the last "app"-String from the Path and everything after that.
        */
       if (index >= 0) {
-        path = path.substring(0, index + 1);
+        path = path.substring(0, index);
       }
-      path = path.concat("app" + File.separator);
+      path = path.concat(File.separator + "app" + File.separator);
       File f = new File(path);
       if (!f.exists()) {
         f.mkdirs();
@@ -316,9 +318,11 @@ public class GastroToolsLauncher extends Application {
              * Hard Drive of the Client. If not, the Client is informed and the startButton will be 
              * disabled by the use of the boolean above.
              */
-            System.out.println("DEBUG: Exec File at: " + names.get(i) + File.separator + repos.get(i) + ".jar");
+            System.out.println("DEBUG: Exec File at: " + path + names.get(i) + File.separator 
+                + repos.get(i) + ".jar");
             if (repos.get(i) == "" || repos.get(i) == null 
-                || !(new File(names.get(i) + File.separator + repos.get(i) + ".jar").exists())) {
+                || !(new File(path + names.get(i) + File.separator + repos.get(i) 
+                + ".jar").exists())) {
               area.setPath("");
               area.updateMessage("Keine ausführbare Datei gefunden!");
               area.setRepo("");
@@ -329,7 +333,7 @@ public class GastroToolsLauncher extends Application {
                * Drive, the Path of the DisplayArea will be set to this File.
                */
             } else {
-              area.setPath(names.get(i) + File.separator + repos.get(i));
+              area.setPath(path + names.get(i) + File.separator + repos.get(i));
               area.setRepo(repos.get(i));
             }
             /*
@@ -412,7 +416,8 @@ public class GastroToolsLauncher extends Application {
        * be performed, instead a Download should be offered. This is done via the AutoUpdate 
        * parameter in the UpdateTask.
        */
-      if (! area.isStartDisabled()) {
+      System.out.println("DEBUG: isStartDisabled: " + area.isStartDisabled());
+      if (!area.isStartDisabled()) {
         task = new UpdateTask(repos.get(i), names.get(i), 
             displayAreas.get(names.get(i)), path, i, this, false);
       } else {
@@ -471,7 +476,7 @@ public class GastroToolsLauncher extends Application {
        * be performed, instead a Download should be offered. This is done via the AutoUpdate 
        * parameter in the UpdateTask.
        */
-      if (! area.isStartDisabled()) {
+      if (!area.isStartDisabled()) {
         task = new UpdateTask(repos.get(index), names.get(index), 
             displayAreas.get(names.get(index)), path, index, this, false);
       } else {
@@ -607,6 +612,12 @@ public class GastroToolsLauncher extends Application {
    * @since 1.0
    */
   public static void main(String[] args) {
+    try {
+      System.setOut(new PrintStream(new File("LogFile.txt")));
+      System.setErr(new PrintStream(new File("ErrorLogs.txt")));
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
     GastroToolsLauncher.launch(args);
   }
 }

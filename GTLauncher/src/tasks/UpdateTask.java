@@ -264,7 +264,8 @@ public class UpdateTask extends Task<Void> {
            */
           area.updateMessage("Zeitüberschreitung! Hier klicken für Neuversuch");
           area.setPath(localPath + name + File.separator + repo + ".jar");
-          System.out.println("DEBUG2: Path set:" + localPath + name + File.separator + repo + ".jar");
+          System.out.println("DEBUG2: Path set:" + localPath + name 
+              + File.separator + repo + ".jar");
           System.out.println("DEBUG2: Path in area: " + area.getPath());
           return null;
         }
@@ -313,7 +314,8 @@ public class UpdateTask extends Task<Void> {
                */
               area.updateMessage("Zeitüberschreitung! Hier klicken für Neuversuch");
               area.setPath(localPath + name + File.separator + repo + ".jar");
-              System.out.println("DEBUG3: Path set:" + localPath + name + File.separator + repo + ".jar");
+              System.out.println("DEBUG3: Path set:" + localPath + name + File.separator + repo 
+                  + ".jar");
               System.out.println("DEBUG3: Path in area: " + area.getPath());
               return null;
             }
@@ -529,7 +531,7 @@ public class UpdateTask extends Task<Void> {
        * If an Error occurred the Version has to be set to "", since the installed version couldn't 
        * be verified. Returns false, since the check wasn't successful.
        */
-      version = "";   
+      version = "";
       return false; 
     }
   }
