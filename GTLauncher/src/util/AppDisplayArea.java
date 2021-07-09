@@ -156,7 +156,6 @@ public class AppDisplayArea {
     /*
      * Adds a Start Button to the DisplayArea with the defined ActionHandler.
      */
-    //TODO: Replace Button Text with Icons.
     Button start = new Button();    
     Image startImg = new Image("/res/Start.png");
     ImageView startView = new ImageView(startImg);

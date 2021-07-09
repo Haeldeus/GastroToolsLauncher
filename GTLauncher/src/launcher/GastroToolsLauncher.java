@@ -38,7 +38,7 @@ public class GastroToolsLauncher extends Application {
    * The Version of this Launcher. This is needed to write the version Number on the hard drive, so 
    * the Updater can keep this Launcher updated.
    */
-  private static final String version = "0.99";
+  private static final String version = "0.991";
   
   /**
    * The Label, that will display Messages to the User or general information.
@@ -146,6 +146,7 @@ public class GastroToolsLauncher extends Application {
        * Writes the current version into the File and closes the FileWriter afterwards.
        */
       fw.write("" + version);
+      System.out.println("DEBUG: Wrote \"" + version + "\" into the File");
       fw.close(); 
     } catch (IOException e) {
       e.printStackTrace();
