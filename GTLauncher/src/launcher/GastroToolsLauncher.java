@@ -614,8 +614,19 @@ public class GastroToolsLauncher extends Application {
    */
   public static void main(String[] args) {
     try {
-      System.setOut(new PrintStream(new File("LogFile.txt")));
-      System.setErr(new PrintStream(new File("ErrorLogs.txt")));
+      String path = Paths.get("").toAbsolutePath().toString();
+      int index = path.lastIndexOf(File.separator + "app");
+      /*
+       * Erases the last "app"-String from the Path and everything after that.
+       */
+      if (index >= 0) {
+        path = path.substring(0, index);
+      }
+      path = path.concat(File.separator + "Logs" + File.separator);
+      File f = new File(path);
+      f.mkdir();
+      System.setOut(new PrintStream(new File(path + "LauncherLogFile.txt")));
+      System.setErr(new PrintStream(new File(path + "LauncherErrorLogs.txt")));
     } catch (Exception e) {
       e.printStackTrace();
     }
