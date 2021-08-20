@@ -276,4 +276,8 @@ public class CheckerTask extends Task<Void> {
     });
   }
   
+  @Override
+  public String toString() {
+    return "CheckerTask " + this.hashCode();
+  }
 }

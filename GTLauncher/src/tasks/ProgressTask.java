@@ -180,4 +180,9 @@ public class ProgressTask extends Task<Void> {
   protected void setRepoNames(ArrayList<String> repoNames) {
     this.repoNames = repoNames;
   }
+  
+  @Override
+  public String toString() {
+    return "ProgressTask " + this.hashCode();
+  }
 }

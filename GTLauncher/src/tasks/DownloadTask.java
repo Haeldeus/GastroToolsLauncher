@@ -20,6 +20,7 @@ import java.nio.file.Paths;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
+import tool.LoggingTool;
 import util.AppDisplayArea;
 
 
@@ -120,21 +121,37 @@ public class DownloadTask extends Task<Void> {
     String name = outputFile.getAbsolutePath().substring(p.length(), 
         outputFile.getAbsolutePath().length());
     
+    LoggingTool.log("Starting DownloadTask for " + name);
+    
     /*
      * Creates a new File, that will be used to create a temporary File, which will replace the old 
      * File after downloading. If a jar-File already exists at the given path of outputFile, this 
      * will create a new temporary File, if no File exists, then newFile only references outputFile.
      */
     File tmpFile;
-    if (outputFile.exists()) {
-      tmpFile = new File(p + name.replace(".jar", "(tmp).jar"));
-    } else {
-      tmpFile = outputFile;
-    }
     /*
      * Creates a temporary Text-File at the saved path to make resuming the Download possible.
      */
     File f = new File(p + "tmp.txt");
+    LoggingTool.log("Creating temporary Text File at: " + f.getPath());
+    if (outputFile.exists()) {
+      if (!f.exists()) {
+        LoggingTool.log("Creating new temporary File");
+        tmpFile = new File(p + name.replace(".jar", "(tmp).jar"));
+        LoggingTool.log("temp File created at: " + tmpFile.getPath());
+      } else {
+        LoggingTool.log("No new temporary File has to be created since download was cancelled");
+        if (new File(p + name.replace(".jar", "(tmp).jar")).exists()) {
+          tmpFile = new File(p + name.replace(".jar", "(tmp).jar"));
+        } else {
+          tmpFile = outputFile;
+        }
+      }
+    } else {
+      LoggingTool.log("No temporary File has to be created");
+      tmpFile = outputFile;
+    }
+    LoggingTool.log("File will be downloaded to: " + tmpFile.getPath());
     /*
      * Boolean Value, that will determine, if the current File has to be deleted or not.
      */
@@ -152,7 +169,9 @@ public class DownloadTask extends Task<Void> {
          * deleted (both are equal means no deletion, different means deletion of the File).
          */
         BufferedReader br = new BufferedReader(new FileReader(f));
-        deleteFile = !br.readLine().equals(version);
+        String readVers = br.readLine();
+        LoggingTool.log("TextFile exists, read Version is " + readVers);
+        deleteFile = !readVers.equals(version);
         br.close();
       } catch (IOException e) {
         /*
@@ -170,6 +189,7 @@ public class DownloadTask extends Task<Void> {
          * the version of the download is stored in.
          */
         BufferedWriter bw = new BufferedWriter(new FileWriter(f));
+        LoggingTool.log("No TextFile exists, creating new File with Version " + version);
         deleteFile = true;
         bw.write(version);
         bw.close();
@@ -183,7 +203,9 @@ public class DownloadTask extends Task<Void> {
       }
     }
     
+    LoggingTool.log("Temporary File has to be deleted? " + deleteFile);
     if (deleteFile) {
+      LoggingTool.log("Deleting temporary File...");
       tmpFile.delete();
     }
     /*
@@ -196,6 +218,7 @@ public class DownloadTask extends Task<Void> {
      * downloads the Data from the URL.
      */
     //Change to outputFile if not working, for both methods!
+    LoggingTool.log("Starting Download of " + name + " to " + tmpFile.getPath());
     URLConnection downloadFileConnection = addFileResumeFunctionality(downloadUrl, tmpFile);
     try {
       transferDataAndGetBytesDownloaded(downloadFileConnection, tmpFile);
@@ -208,6 +231,7 @@ public class DownloadTask extends Task<Void> {
      * and returns null in that case to stop the further execution of the Task.
      */
     if (isCancelled()) {
+      LoggingTool.logError("Download of " + name + " Cancelled!");
       area.downloadFinished("Download unterbrochen!");
       return null;
     }
@@ -221,17 +245,20 @@ public class DownloadTask extends Task<Void> {
        * Deletes the temporary File, where the version was stored, since it's not needed after 
        * completing the Download.
        */
+      LoggingTool.log("Deleting temporary Text File of \"" + name + "\"...");
       f.delete();
       /*
        * Renames the downloaded File, to replace the older executable.
        */
       if (outputFile != tmpFile) {
+        LoggingTool.log("Replacing older File of " + name);
         outputFile.delete();
         tmpFile.renameTo(outputFile);
       }
     } catch (Exception e) {
       e.printStackTrace();
     }
+    LoggingTool.log("Download of " + name + "finished!");
     area.downloadFinished("Download erfolgreich abgeschlossen.");
     return null;
   }
@@ -476,5 +503,10 @@ public class DownloadTask extends Task<Void> {
      * Returns the newly created Connection with the Property to resume the Download.
      */
     return downloadFileConnection;
+  }
+  
+  @Override
+  public String toString() {
+    return "DownloadTask " + this.hashCode();
   }
 }

@@ -19,7 +19,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import tasks.DownloadTask;
+import tool.LoggingTool;
 
 /**
  * The Area that displays each single Application added to the Launcher. Every Area can also 
@@ -69,6 +73,11 @@ public class AppDisplayArea {
    * The name of the Repository for this Application.
    */
   private String repo;
+  
+  /**
+   * The primary Stage, that contains this DisplayArea.
+   */
+  private Stage primary;
 
   /**
    * A Constructor for the Area. This will set all Fields to the given values and initiates 
@@ -78,13 +87,15 @@ public class AppDisplayArea {
    * @param pathToIcon  The Path to the Icon for the Application.
    * @param path  The Path to the executable File.
    * @param repo  The Name of the Repository for this Application. Used for downloading updates.
+   * @param primary The primaryStage, This Constructor was called from.
    * @since 1.0
    */
-  public AppDisplayArea(String name, String pathToIcon, String path, String repo) {
+  public AppDisplayArea(String name, String pathToIcon, String path, String repo, Stage primary) {
     this.name = name;
     this.path = path;
     this.pathToIcon = pathToIcon;
     this.repo = repo;
+    this.primary = primary;
     messageLabel = new Label("Messages will be shown here");
     buttons = new ArrayList<Button>();
   }
@@ -132,6 +143,10 @@ public class AppDisplayArea {
     iw.setFitWidth(50);
     iw.setFitHeight(50);
     
+    HBox hboxImage = new HBox();
+    hboxImage.setStyle("-fx-border-color: black; -fx-border-width: 1; -fx-border-style: inset;");
+    hboxImage.getChildren().add(iw);
+    
     /*
      * Creates a GridPane, that will contain the Icon and the Buttons for this DisplayArea.
      * It will be added to the Center of the BorderPane later.
@@ -143,7 +158,7 @@ public class AppDisplayArea {
     /*
      * Adds the ImageView to the Grid.
      */
-    grid.add(iw, 0, 0);
+    grid.add(hboxImage, 0, 0);
     
     /*
      * Creates a GridPane, that will contain all Buttons for this DisplayArea.
@@ -312,6 +327,16 @@ public class AppDisplayArea {
         version, this);
     bindProgressBar(task);
     new Thread(task).start();
+    /*
+     * Adds a new EventHandler to the onCloseRequest to cancel the Update, when the User closes the 
+     * Application.
+     */
+    primary.setOnCloseRequest(new EventHandler<WindowEvent>() {
+      @Override
+      public void handle(WindowEvent event) {
+          task.cancel();
+      }
+    });
   }
   
   /**
@@ -349,6 +374,7 @@ public class AppDisplayArea {
    * implemented.
 
    * @param downloadPath  The Path to the File to be downloaded.
+   * @param version The Version String of the File to be downloaded.
    * @since 1.0
    */
   public void enableDownload(String downloadPath, String version) {
@@ -380,11 +406,14 @@ public class AppDisplayArea {
    * @since 1.0
    */
   public void bindProgressBar(Task<Void> task) {
-    if (!pb.isVisible()) {
-      pb.setVisible(true);
-      bottomGrid.add(pb, 0, 1);
-    }
-    pb.progressProperty().bind(task.progressProperty());
+    Platform.runLater(new Runnable() {
+      @Override
+      public void run() {
+        LoggingTool.log("Binding ProgressBar to following Task: " + task.toString());
+        pb.setVisible(true);
+        pb.progressProperty().bind(task.progressProperty());
+      }
+    });
   }
   
   /**
@@ -414,10 +443,6 @@ public class AppDisplayArea {
       @Override
       public void run() {
         pb.setVisible(false);
-        //TODO: See Comment below.
-        //After calling prepareDownload(), there is only 1 child in bottomGrid, so this line might 
-        //cause some Problems.
-        bottomGrid.getChildren().remove(1);
       }
     });
   }
@@ -559,5 +584,25 @@ public class AppDisplayArea {
    */
   public void setRepo(String repo) {
     this.repo = repo;
+  }
+  
+  /**
+   * Sets the primary Stage of this DisplayArea.
+
+   * @param primary The primary Stage to be set.
+   * @see #primary
+   * @since 1.0
+   */
+  public void setPrimary(Stage primary) {
+    this.primary = primary;
+  }
+  
+  @Override
+  public String toString() {
+    String res = "";
+    res = res.concat("AppDisplayArea - " + name + " - " + repo + System.lineSeparator());
+    res = res.concat("Path to Exec File: " + path + System.lineSeparator());
+    res = res.concat("Path to Icon: " + pathToIcon);
+    return res;
   }
 }

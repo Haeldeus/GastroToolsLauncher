@@ -420,7 +420,7 @@ public class UpdateTask extends Task<Void> {
       updateProgress(max, max);
       area.updateMessage("Keine Versionsdatei gefunden. Neuinstallation empfohlen!");
       area.enableDownload("https://github.com/Haeldeus/" + repo + "/releases/download/v" 
-          + publishedVersion + "/" + name + ".jar", version);
+          + publishedVersion + "/" + name + ".jar", publishedVersion);
       area.hideProgressBar();
       area.setPath(localPath + name + File.separator + repo + ".jar");
       System.out.println("DEBUG4: Path set:" + localPath + name + File.separator + repo + ".jar");
@@ -452,7 +452,7 @@ public class UpdateTask extends Task<Void> {
         updateProgress(++counter, max + 1);
         area.updateMessage("Update gefunden!");
         area.enableDownload("https://github.com/Haeldeus/" + repo + "/releases/download/v" 
-            + publishedVersion + "/" + name + ".jar", version);
+            + publishedVersion + "/" + name + ".jar", publishedVersion);
         updateProgress(max, max);
       } else {
         /*
@@ -463,7 +463,7 @@ public class UpdateTask extends Task<Void> {
         updateProgress(++counter, max + 1);
         area.updateMessage("Fehlerhafte Versionsnummer gefunden. Update empfohlen!");
         area.enableDownload("https://github.com/Haeldeus/" + repo + "/releases/download/v" 
-            + publishedVersion + "/" + name + ".jar", version);
+            + publishedVersion + "/" + name + ".jar", publishedVersion);
         updateProgress(max, max);
       }
     } else {
@@ -471,7 +471,7 @@ public class UpdateTask extends Task<Void> {
       updateProgress(++counter, max + 1);
       area.updateMessage("Fehlerhafte Installation gefunden. Update notwendig!");
       area.enableDownload("https://github.com/Haeldeus/" + repo + "/releases/download/v" 
-          + publishedVersion + "/" + name + ".jar", version);
+          + publishedVersion + "/" + name + ".jar", publishedVersion);
       updateProgress(max, max);
     }
     /*
@@ -534,5 +534,10 @@ public class UpdateTask extends Task<Void> {
       version = "";
       return false; 
     }
+  }
+  
+  @Override
+  public String toString() {
+    return "UpdateTask " + this.hashCode();
   }
 }
