@@ -14,6 +14,7 @@ import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
 import launcher.GastroToolsLauncher;
+import tool.LoggingTool;
 import util.AppDisplayArea;
 
 /**
@@ -142,6 +143,8 @@ public class UpdateTask extends Task<Void> {
      * Has to be executed in a try-catch Block to prevent Errors, when this Task is started for the 
      * first Time, since we don't want the Task to stop.
      */
+    LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+        "Removing possible Listener from the Message Label of " + name + "...");
     try {
       area.getMessageLabel().removeEventHandler(MouseEvent.MOUSE_CLICKED, 
           area.getMessageLabel().getOnMouseClicked());
@@ -177,6 +180,8 @@ public class UpdateTask extends Task<Void> {
        * Updates the User.
        */
       updateProgress(++counter, max);
+      LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+          "Connection to the Website of " + name + " established!");
       area.updateMessage("Verbindung hergestellt");
     } catch (IOException e) {
       /*
@@ -193,6 +198,10 @@ public class UpdateTask extends Task<Void> {
            */
           ArrayList<Integer> list = new ArrayList<Integer>();
           list.add(index);
+          LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+              "Restarting UpdateTask for " + name);
+          LoggingTool.logError(getClass(), LoggingTool.getLineNumber(), 
+              "Restarting UpdateTask for " + name);
           primary.startSpecificUpdateTasks(list);
         }  
       });
@@ -200,6 +209,10 @@ public class UpdateTask extends Task<Void> {
        * Updates the User, that no connection could be established.
        */
       area.updateMessage("Keine Internetverbindung entdeckt. Hier klicken für Neuversuch.");
+      LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+          "Connection to the Website failed! " + name + " couldn't be updated!");
+      LoggingTool.logError(getClass(), LoggingTool.getLineNumber(), 
+          "Connection to the Website failed! " + name + " couldn't be updated!");
       /*
        * Since there is no connection to the Website, this Reader cannot be created. Since it is 
        * used later on, it has to be set to null to prevent errors. Also sets connected to false to 
@@ -216,8 +229,7 @@ public class UpdateTask extends Task<Void> {
     if (!connected) {
       area.hideProgressBar();
       area.setPath(localPath + name + File.separator + repo + ".jar");
-      System.out.println("DEBUG1: Path set:" + localPath + name + File.separator + repo + ".jar");
-      System.out.println("DEBUG1: Path in area: " + area.getPath());
+      LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Path set to " + area.getPath());
       return null;
     }
     /*
@@ -254,6 +266,10 @@ public class UpdateTask extends Task<Void> {
                */
               ArrayList<Integer> list = new ArrayList<Integer>();
               list.add(index);
+              LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+                  "Restarting UpdateTask for " + name);
+              LoggingTool.logError(getClass(), LoggingTool.getLineNumber(), 
+                  "Restarting UpdateTask for " + name);
               primary.startSpecificUpdateTasks(list);
             }  
           });
@@ -264,9 +280,10 @@ public class UpdateTask extends Task<Void> {
            */
           area.updateMessage("Zeitüberschreitung! Hier klicken für Neuversuch");
           area.setPath(localPath + name + File.separator + repo + ".jar");
-          System.out.println("DEBUG2: Path set:" + localPath + name 
-              + File.separator + repo + ".jar");
-          System.out.println("DEBUG2: Path in area: " + area.getPath());
+          LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+              "TIMEOUT! Path set to: " + area.getPath());
+          LoggingTool.logError(getClass(), LoggingTool.getLineNumber(), 
+              "TIMEOUT! Path set to: " + area.getPath());
           return null;
         }
         /*
@@ -280,6 +297,7 @@ public class UpdateTask extends Task<Void> {
           list = false;
           updateProgress(++counter, max);
           area.updateMessage("Versionsabfrage abgeschlossen.");
+          LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Version check finished");
         }
         
         /*
@@ -304,6 +322,10 @@ public class UpdateTask extends Task<Void> {
                    */
                   ArrayList<Integer> list = new ArrayList<Integer>();
                   list.add(index);
+                  LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+                      "Restarting UpdateTask for " + name);
+                  LoggingTool.logError(getClass(), LoggingTool.getLineNumber(), 
+                      "Restarting UpdateTask for " + name);
                   primary.startSpecificUpdateTasks(list);
                 }  
               });
@@ -314,9 +336,10 @@ public class UpdateTask extends Task<Void> {
                */
               area.updateMessage("Zeitüberschreitung! Hier klicken für Neuversuch");
               area.setPath(localPath + name + File.separator + repo + ".jar");
-              System.out.println("DEBUG3: Path set:" + localPath + name + File.separator + repo 
-                  + ".jar");
-              System.out.println("DEBUG3: Path in area: " + area.getPath());
+              LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+                  "TIMEOUT! Path set to: " + area.getPath());
+              LoggingTool.logError(getClass(), LoggingTool.getLineNumber(), 
+                  "TIMEOUT! Path set to: " + area.getPath());
               return null;
             }
             /*
@@ -342,6 +365,7 @@ public class UpdateTask extends Task<Void> {
                */
               updateProgress(++counter, max);
               area.updateMessage("Versionsnummer wurde ausgelesen");
+              LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Version found!");
             }
             
             s = s.concat(line.trim() + System.lineSeparator());
@@ -358,13 +382,14 @@ public class UpdateTask extends Task<Void> {
            */
           updateProgress(++counter, max);
           area.updateMessage("Versionsnummern gefunden.");
+          LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Found list of Versions!");
         }
       }
     } catch (IOException e) {
       e.printStackTrace();
     }
     /*
-     * Closes the Reader to prevent Ressource Leak.
+     * Closes the Reader to prevent Resource Leak.
      */
     br.close();
     
@@ -374,6 +399,7 @@ public class UpdateTask extends Task<Void> {
      */
     updateProgress(++counter, max);
     area.updateMessage("Verarbeite Versionsnummern...");
+    LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Processing Version Strings...");
     /*
      * Creates a new StringTokenizer to separate single versions from the the Version Information 
      * found beforehand. Also deletes the first Token, since this will always be "Current Version:" 
@@ -402,6 +428,7 @@ public class UpdateTask extends Task<Void> {
      */
     updateProgress(++counter, max);
     area.updateMessage("Version überprüft.");
+    LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Version checked!");
     
     //Space for possible Additions, that might be necessary in the future between these Steps.
     
@@ -410,25 +437,29 @@ public class UpdateTask extends Task<Void> {
      */
     updateProgress(++counter, max);
     area.updateMessage("Überprüfe installierte Version...");
+    LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Checking installed version...");
     
     /*
      * Checks for an installed Version via checkVersion(). If no Version is installed, it updates 
      * the User and stops the Task.
      */
     if (!checkVersion()) {
-      System.out.println("DEBUG: No version found");
+      LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+          "No Version File for " + name + " found!");
+      LoggingTool.logError(getClass(), LoggingTool.getLineNumber(), 
+          "No version File for " + name + " found!");
       updateProgress(max, max);
       area.updateMessage("Keine Versionsdatei gefunden. Neuinstallation empfohlen!");
       area.enableDownload("https://github.com/Haeldeus/" + repo + "/releases/download/v" 
-          + publishedVersion + "/" + name + ".jar", version);
+          + publishedVersion + "/" + name + ".jar", publishedVersion);
       area.hideProgressBar();
       area.setPath(localPath + name + File.separator + repo + ".jar");
-      System.out.println("DEBUG4: Path set:" + localPath + name + File.separator + repo + ".jar");
-      System.out.println("DEBUG4: Path in area: " + area.getPath());
+      LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+          "No Version File found, Path set to: " + area.getPath());
       return null;
     }
     
-    System.out.println("DEBUG: Version check completed");
+    LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Version Check completed!");
     
     if (!autoUpdate) {
       /*
@@ -443,35 +474,39 @@ public class UpdateTask extends Task<Void> {
         updateProgress(max, max);
         area.updateMessage("Neuste Version vorhanden!");
         area.switchDownloadButton(true);
-        System.out.println("DEBUG: Newest Version installed");
+        LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Latest Version installed!");
       } else if (oldVersions.contains(version)) {
         /*
          * Informs the User, that an update was found and enables the Download for this Update.
          */
-        System.out.println("DEBUG: Old version found");
+        LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Outdated Version installed!");
         updateProgress(++counter, max + 1);
         area.updateMessage("Update gefunden!");
         area.enableDownload("https://github.com/Haeldeus/" + repo + "/releases/download/v" 
-            + publishedVersion + "/" + name + ".jar", version);
+            + publishedVersion + "/" + name + ".jar", publishedVersion);
         updateProgress(max, max);
       } else {
         /*
          * Informs the User, that the installed version might be flawed and recommends an Update.
          * Also enables the Download to be able to update the Version.
          */
-        System.out.println("DEBUG: Flawed version found");
+        LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+            "Flawed Version installed! Installed: "  + version + ", Latest: " + publishedVersion);
+        LoggingTool.logError(getClass(), LoggingTool.getLineNumber(), 
+            "Flawed Version of " + name + " installed! Installed: "  + version + ", Latest: " 
+            + publishedVersion);
         updateProgress(++counter, max + 1);
         area.updateMessage("Fehlerhafte Versionsnummer gefunden. Update empfohlen!");
         area.enableDownload("https://github.com/Haeldeus/" + repo + "/releases/download/v" 
-            + publishedVersion + "/" + name + ".jar", version);
+            + publishedVersion + "/" + name + ".jar", publishedVersion);
         updateProgress(max, max);
       }
     } else {
-      System.out.println("DEBUG: AutoUpdate triggered");
+      LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "AutoUpdate triggered!");
       updateProgress(++counter, max + 1);
       area.updateMessage("Fehlerhafte Installation gefunden. Update notwendig!");
       area.enableDownload("https://github.com/Haeldeus/" + repo + "/releases/download/v" 
-          + publishedVersion + "/" + name + ".jar", version);
+          + publishedVersion + "/" + name + ".jar", publishedVersion);
       updateProgress(max, max);
     }
     /*
@@ -479,8 +514,7 @@ public class UpdateTask extends Task<Void> {
      * ProgressBar, since this Task is finished and stops this Task.
      */
     area.setPath(localPath + name + File.separator + repo + ".jar");
-    System.out.println("DEBUG5: Path set:" + localPath + name + File.separator + repo + ".jar");
-    System.out.println("DEBUG5: Path in area: " + area.getPath());
+    LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "UpdateTask finished!");
     area.hideProgressBar();
     return null;
   }
@@ -499,6 +533,7 @@ public class UpdateTask extends Task<Void> {
      */
     updateProgress(++counter, max);
     area.updateMessage("Lade lokale Versionsdatei...");
+    LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Reading local Version File...");
     /*
      * Creates a String that contains the path to the Version-File.
      */
@@ -508,6 +543,7 @@ public class UpdateTask extends Task<Void> {
      */
     updateProgress(++counter, max);
     area.updateMessage("Überprüfe installierte Version");
+    LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Checking installed Version...");
     /*
      * If no Version-File exists, an Error will be thrown when trying to read from it. To prevent 
      * this Error from stopping the whole Task, this try-catch-Block is used.
@@ -534,5 +570,10 @@ public class UpdateTask extends Task<Void> {
       version = "";
       return false; 
     }
+  }
+  
+  @Override
+  public String toString() {
+    return "UpdateTask " + this.hashCode();
   }
 }

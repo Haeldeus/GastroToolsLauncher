@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import launcher.GastroToolsLauncher;
+import tool.LoggingTool;
 
 /**
  * A Task, that will call a CheckerTask and controls the Execution of that Task. Afterwards this 
@@ -71,8 +72,7 @@ public class ProgressTask extends Task<Void> {
     this.primary = primary;
     this.timeout = timeout;
     index = 1;
-    //TODO: Use real value instead of this placeholder.
-    max = 100;
+    max = 7;
   }
   
   @Override
@@ -81,6 +81,8 @@ public class ProgressTask extends Task<Void> {
      * Creates a new CheckerTask, that will be started by this Task.
      */
     CheckerTask task = new CheckerTask(this, primary, index);
+    LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+        "Starting a new CheckerTask to get the List of supported Applications.");
     new Thread(task).start();
     /*
      * Starts a second Thread, that will cancel the CheckerTask after the specified Time.
@@ -111,22 +113,17 @@ public class ProgressTask extends Task<Void> {
      * passed to the Launcher. Either way, the Launcher will be updated with the Lists and this 
      * Task is terminated.
      */
+    //TODO: Check if this works! Else: add these lists in the if-clause.
+    primary.setNames(repoNames);
+    primary.setRepos(publishedRepos);
     if (success) {
       updateIndicator(max, "Liste aller Anwendungen gefunden!");
-      //TODO: See Comment below.
-      //Check, if the Lists can be set outside of this block, since the Fields will be set as 
-      //new Lists in the CheckerTask.
-       
-      primary.setNames(repoNames);
-      primary.setRepos(publishedRepos);
       primary.buildLauncher(true);
-      return null;
     } else {
       updateIndicator(max, updates.getText());
-      primary.setNames(new ArrayList<String>());
-      primary.setRepos(new ArrayList<String>());
-      return null;
     }
+    LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "ProgressTask finished.");
+    return null;
   }
   
   /**
@@ -179,5 +176,10 @@ public class ProgressTask extends Task<Void> {
    */
   protected void setRepoNames(ArrayList<String> repoNames) {
     this.repoNames = repoNames;
+  }
+  
+  @Override
+  public String toString() {
+    return "ProgressTask " + this.hashCode();
   }
 }
