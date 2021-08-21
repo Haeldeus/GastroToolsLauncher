@@ -2,10 +2,10 @@ package util;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -96,7 +96,7 @@ public class AppDisplayArea {
     this.pathToIcon = pathToIcon;
     this.repo = repo;
     this.primary = primary;
-    messageLabel = new Label("Messages will be shown here");
+    messageLabel = new Label("");
     buttons = new ArrayList<Button>();
   }
   
@@ -111,7 +111,7 @@ public class AppDisplayArea {
     this.setName("Placeholder");
     this.setPath("");
     this.setRepo("");
-    messageLabel = new Label("Messages will be shown here");
+    messageLabel = new Label("");
     buttons = new ArrayList<Button>();
   }
   
@@ -122,6 +122,7 @@ public class AppDisplayArea {
    * @since 1.0
    */
   public BorderPane createDisplayArea() {
+    LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Creating AppDisplayArea...");
     /*
      * Creates a new BorderPane, that will inherit the DisplayArea.
      */
@@ -144,7 +145,7 @@ public class AppDisplayArea {
     iw.setFitHeight(50);
     
     HBox hboxImage = new HBox();
-    hboxImage.setStyle("-fx-border-color: black; -fx-border-width: 1; -fx-border-style: inset;");
+    hboxImage.setStyle("-fx-border-color: black; -fx-border-width: 1; -fx-border-style: solid;");
     hboxImage.getChildren().add(iw);
     
     /*
@@ -179,7 +180,6 @@ public class AppDisplayArea {
     start.setTooltip(new Tooltip("Anwendung starten"));
     start.setGraphic(startView);
     start.setOnAction(new EventHandler<ActionEvent>() {
-      @SuppressWarnings("unused") //Will be deleted as soon as the Input Stream Problem is fixed.
       @Override
       public void handle(ActionEvent arg0) {
         /*
@@ -190,14 +190,10 @@ public class AppDisplayArea {
         if (!path.equals("")) {
           try {
             // Run a java application in a separate system process
-            Process proc = Runtime.getRuntime().exec("java -jar " + path, null, 
+            LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+                "Running executable File for " + name);
+            Runtime.getRuntime().exec("java -jar " + path, null, 
                 new File(path.substring(0, path.lastIndexOf(File.separator))));
-  
-            // Then retrieve the process output
-            //TODO: Check if InputStreams can be added to the Console. (Delete SuppressWarnings!)
-            InputStream in = proc.getInputStream();
-            InputStream err = proc.getErrorStream();
-            OutputStream out = proc.getOutputStream();
             /*
              * Exits this Process with the default integer 0.
              */
@@ -209,10 +205,16 @@ public class AppDisplayArea {
              */
             e.printStackTrace();
             messageLabel.setText("Fehler beim Starten von " + name + "!");
+            LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+                "Error when starting " + name + "! Check previous Logs for possible Causes.");
+            LoggingTool.logError(getClass(), LoggingTool.getLineNumber(), 
+                "Error when starting " + name + "! Check previous Logs for possible Causes.");
           }
         } else {
           messageLabel.setText("Konnte Anwendung nicht starten, da keine ausführbare Datei "
               + "vorhanden ist!");
+          LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Tried to execute " + name 
+              + ", but no executable File was found!");
         }
       }    
     }); 
@@ -284,6 +286,7 @@ public class AppDisplayArea {
      * Adds the Grid to the Bottom of the BorderPane and returns said BorderPane afterwards.
      */
     bp.setBottom(bottomGrid);
+    LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "AppDisplayArea created!");
     return bp;
   }
 
@@ -302,6 +305,7 @@ public class AppDisplayArea {
      */
     Label updates = new Label();
     Label length = new Label();
+    LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Preparing download...");
     Platform.runLater(new Runnable() {
       @Override
       public void run() {
@@ -326,6 +330,7 @@ public class AppDisplayArea {
     DownloadTask task = new DownloadTask(downloadPath, new File(path), updates, length, 
         version, this);
     bindProgressBar(task);
+    LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Starting DownloadTask");
     new Thread(task).start();
     /*
      * Adds a new EventHandler to the onCloseRequest to cancel the Update, when the User closes the 
@@ -334,7 +339,8 @@ public class AppDisplayArea {
     primary.setOnCloseRequest(new EventHandler<WindowEvent>() {
       @Override
       public void handle(WindowEvent event) {
-          task.cancel();
+        LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Cancelling DownloadTask...");
+        task.cancel();
       }
     });
   }
@@ -365,6 +371,8 @@ public class AppDisplayArea {
         hideProgressBar();
         
         switchButtons(false, true, false);
+        LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Download of " + name 
+            + " finished with Message: \"" + text + "\"");
       }
     });
   }
@@ -378,8 +386,7 @@ public class AppDisplayArea {
    * @since 1.0
    */
   public void enableDownload(String downloadPath, String version) {
-    System.out.println("DEBUG: Came to Download");
-    System.out.println("DEBUG: Path: " + path);
+    LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Enabling Download...");
     switchDownloadButton(false);
     /*
      * Since the order of the Buttons is fixed, the Download Button can be called directly by 
@@ -391,7 +398,6 @@ public class AppDisplayArea {
         /*
          * Testing Purposes. Will be deleted afterwards.
          */
-        System.out.println("DEBUG: Path: " + path);
         prepareDownload(downloadPath, version);
       }     
     });
@@ -409,8 +415,21 @@ public class AppDisplayArea {
     Platform.runLater(new Runnable() {
       @Override
       public void run() {
-        LoggingTool.log("Binding ProgressBar to following Task: " + task.toString());
+        LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+            "Binding ProgressBar to following Task: " + task.toString());
         pb.setVisible(true);
+
+        pb.progressProperty().addListener(new ChangeListener<Number>() {
+          @Override
+          public void changed(ObservableValue<? extends Number> observable, Number oldValue, 
+              Number newValue) {
+            pb.getStyleClass().removeAll();
+            double progress = newValue == null ? 0 : newValue.doubleValue();
+            int offset = (int) (progress * 255);
+            pb.setStyle("-fx-accent: rgb(" + (255 - offset) + ", " + offset + ",0);");
+          }          
+        });
+        
         pb.progressProperty().bind(task.progressProperty());
       }
     });

@@ -11,6 +11,7 @@ import java.util.StringTokenizer;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import launcher.GastroToolsLauncher;
+import tool.LoggingTool;
 
 /**
  * The Task, which Objects will check for the Repositories and their Names, that were added to the 
@@ -65,11 +66,15 @@ public class CheckerTask extends Task<Void> {
     int counter = 0;
     try {
       url = new URL("https://github.com/Haeldeus/CashAssetsLauncher/blob/master/List.txt");
+      LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "URL set to: " + url);
       counter++;
       // Get the input stream through URL Connection
       URLConnection con = url.openConnection();
+      LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Connection established.");
       counter++;
       con.connect();
+      LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+          "Communication to the Server established.");
       counter++;
       /*
        * Fetches the InputStream from the Connection and sets the Reader to read from this Stream.
@@ -89,15 +94,28 @@ public class CheckerTask extends Task<Void> {
       if (counter == 0) {
         updateFailed("Fehler bei der URL-Auflösung. Bitte melden Sie diesen Fehler "
             + "dem Entwickler.");
+        LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Error when parsing the URL!");
+        LoggingTool.logError(getClass(), LoggingTool.getLineNumber(), 
+            "Error when parsing the URL!");
       } else if (counter == 1) {
         updateFailed("Keine Verbindung zum Server möglich. Bitte überprüfen Sie Ihre "
             + "Internetverbindung. Index = " + counter);
+        LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+            "No connection to the Server possible!");
+        LoggingTool.logError(getClass(), LoggingTool.getLineNumber(), 
+            "No connection to the Server possible!");
       } else if (counter == 2) {
         updateFailed("Fehler bei der Kommunikation zum Server, bitte melden Sie dieses "
             + "Problem dem Entwickler. Index = " + counter);
+        LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+            "Error when communicating with the Server!");
+        LoggingTool.logError(getClass(), LoggingTool.getLineNumber(), 
+            "Error when communicating with the Server!");
       } else {
         updateFailed("Antwort vom Server nicht erfolgreich, bitte melden Sie dieses "
             + "Problem dem Entwickler. Index = " + counter);
+        LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Server didn't respond!");
+        LoggingTool.logError(getClass(), LoggingTool.getLineNumber(), "Server didn't respond!");
       }
       /*
        * Creates a new Reader with null as InputStream to prevent Compiler Errors. Returns null 
@@ -137,6 +155,10 @@ public class CheckerTask extends Task<Void> {
           Platform.runLater(new Runnable() {
             @Override
             public void run() {
+              LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+                  "Search for Repositories was cancelled!");
+              LoggingTool.logError(getClass(), LoggingTool.getLineNumber(), 
+                  "Search for Repositories was cancelled!");
               prt.setResult(false);
               prt.setRepoNames(new ArrayList<String>());
               prt.setPublishedRepos(new ArrayList<String>());
@@ -151,6 +173,7 @@ public class CheckerTask extends Task<Void> {
         if (line.contains("#End List File")) {
           list = false;
           prt.updateIndicator(++index, "Liste der Anwendungen abgefragt.");
+          LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "List of Applications fetched.");
         }
         
         /*
@@ -167,7 +190,19 @@ public class CheckerTask extends Task<Void> {
              * will be updated.
              */
             if (isCancelled()) {
-              updateFailed("Zeitüberschreitung!");
+              Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                  LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+                      "Search for Repositories was cancelled because of a timeout!");
+                  LoggingTool.logError(getClass(), LoggingTool.getLineNumber(), 
+                      "Search for Repositories was cancelled because of a timeout!");
+                  prt.setResult(false);
+                  prt.setRepoNames(new ArrayList<String>());
+                  prt.setPublishedRepos(new ArrayList<String>());
+                  primary.showUpdateFailed("Zeitüberschreitung!");
+                }           
+              });
               return null;
             }
             /*
@@ -191,6 +226,7 @@ public class CheckerTask extends Task<Void> {
         if (line.contains("#Begin List File")) {
           list = true;
           prt.updateIndicator(++index, "Liste der Anwendungen gefunden!");
+          LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "List of Applications found");
         }
       }
     } catch (IOException e) {
@@ -203,6 +239,7 @@ public class CheckerTask extends Task<Void> {
      * Updates the User, that the List was requested and the Task will now separate it.
      */
     prt.updateIndicator(++index, "Aufteilen der Liste...");
+    LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Separating the List...");
     /*
      * A StringTokenizer to separate each Line in the String of Lists.
      */
@@ -239,6 +276,8 @@ public class CheckerTask extends Task<Void> {
     prt.setRepoNames(names);
     prt.setResult(true);
     prt.updateIndicator(++index, "Liste überprüft.");
+    LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+        "Checking for Applications finished. Terminating this Task.");
     return null;
   }
 
@@ -264,6 +303,10 @@ public class CheckerTask extends Task<Void> {
     prt.setResult(false);
     prt.setRepoNames(new ArrayList<String>());
     prt.setPublishedRepos(new ArrayList<String>());
+    LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+        "Update failed. Check previous Messages!");
+    LoggingTool.logError(getClass(), LoggingTool.getLineNumber(), 
+        "Update failed. Check previous Messages.");
     /*
      * Displays the given Text to the User. This is done via runLater, since this Process isn't the 
      * Process that started the primary Stage.

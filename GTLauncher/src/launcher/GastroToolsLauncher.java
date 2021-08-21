@@ -41,7 +41,7 @@ public class GastroToolsLauncher extends Application {
    * The Version of this Launcher. This is needed to write the version Number on the hard drive, so 
    * the Updater can keep this Launcher updated.
    */
-  private static final String version = "0.991";
+  private static final String version = "0.992";
   
   /**
    * The Label, that will display Messages to the User or general information.
@@ -87,11 +87,12 @@ public class GastroToolsLauncher extends Application {
   
   @Override
   public void start(Stage primary) throws Exception {
+    LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Version used: " + version);
     /*
      * Adds the Icon to the Stage, so it can be displayed in the TaskBar.
      */
     primary.getIcons().add(new Image("/res/GTIcon.png"));
-    LoggingTool.log("Set Icon.");
+    LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Set Icon.");
     /*
      * Sets the primary Stage of this Application, as well as path to the current working 
      * directory. Also writes the Version to the disc and creates a new BorderPane, which will 
@@ -99,7 +100,7 @@ public class GastroToolsLauncher extends Application {
      */
     this.primaryStage = primary;
     path = Paths.get("").toAbsolutePath().toString();
-    LoggingTool.log("Writing version...");
+    LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Writing version...");
     writeVersion();
     bp = new BorderPane();
     /*
@@ -108,7 +109,7 @@ public class GastroToolsLauncher extends Application {
      */
     Scene scene = new Scene(bp, 350, 300);
     primaryStage.setTitle("GastroTools v" + version);
-    //scene.getStylesheets().add(Util.getControlStyle());
+    scene.getStylesheets().add("controlStyle1.css");
     primaryStage.setScene(scene);
     primaryStage.setMinHeight(270);
     primaryStage.setMinWidth(350);
@@ -116,7 +117,7 @@ public class GastroToolsLauncher extends Application {
     /*
      * Starts the Checking for the List Task.
      */
-    LoggingTool.log("Starting Checker Task...");
+    LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Starting background Task...");
     startCheckingTask();
   }
   
@@ -155,12 +156,14 @@ public class GastroToolsLauncher extends Application {
        * Creates a new File called "Version.txt" in the newly created app-Folder.
        */
       FileWriter fw = new FileWriter(path + "Version.txt");
-      LoggingTool.log("Created File at: " + path + "Version.txt");
+      LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+          "Created File at: " + path + "Version.txt");
       /*
        * Writes the current version into the File and closes the FileWriter afterwards.
        */
       fw.write("" + version);
-      LoggingTool.log("Wrote \"" + version + "\" into the Version-File");
+      LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+          "Wrote \"" + version + "\" into the Version-File");
       fw.close(); 
     } catch (IOException e) {
       e.printStackTrace();
@@ -177,8 +180,10 @@ public class GastroToolsLauncher extends Application {
    * @since 1.0
    */
   public void showUpdateFailed(String text) {
-    LoggingTool.log("Failed to update the List of Applications");
-    LoggingTool.logError("Failed to update the List of Applications");
+    LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+        "Failed to update the List of Applications");
+    LoggingTool.logError(getClass(), LoggingTool.getLineNumber(), 
+        "Failed to update the List of Applications");
     Platform.runLater(new Runnable() {
       @Override
       public void run() {
@@ -198,7 +203,8 @@ public class GastroToolsLauncher extends Application {
         /*
          * Sets the Text of the Label and adds it to the Grid.
          */
-        LoggingTool.log("Content of Scene reset, show Message: " + text);
+        LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+            "Content of Scene reset, show Message: " + text);
         updatesLabel.setText(text);
         grid.add(updatesLabel, 0, 0, 2, 1);
         /*
@@ -208,7 +214,8 @@ public class GastroToolsLauncher extends Application {
         btRetry.setOnAction(new EventHandler<ActionEvent>() {
           @Override
           public void handle(ActionEvent arg0) {
-            LoggingTool.log("Retrying to update the List, starting checking Task...");
+            LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+                "Retrying to update the List, starting checking Task...");
             startCheckingTask();
           }          
         });
@@ -223,7 +230,7 @@ public class GastroToolsLauncher extends Application {
         btStart.setOnAction(new EventHandler<ActionEvent>() {
           @Override
           public void handle(ActionEvent ae) {
-            LoggingTool.log("Starting without Updates...");
+            LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Starting without Updates...");
             startWithoutUpdate();
           }
         });
@@ -260,7 +267,8 @@ public class GastroToolsLauncher extends Application {
     //TODO: Add possibility to change the timeout of the CheckerTask. (Setting?)
     ProgressTask pt = new ProgressTask(this.updatesLabel, this, 5000);
     pi.progressProperty().bind(pt.progressProperty());
-    LoggingTool.log("Starting ProgressTask as a new Thread...");
+    LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+        "Starting ProgressTask as a new Thread...");
     new Thread(pt).start();
   }
   
@@ -294,7 +302,7 @@ public class GastroToolsLauncher extends Application {
         /*
          * Resizes the Stage and deletes its' previous content.
          */
-        LoggingTool.log("Building the Launcher...");
+        LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Building the Launcher...");
         primaryStage.setMinWidth(350);
         primaryStage.setWidth(350);
         primaryStage.setMinHeight(400);
@@ -317,12 +325,14 @@ public class GastroToolsLauncher extends Application {
          * AppDisplayAreas differently, so this check is required.
          */
         if (connection) {
-          LoggingTool.log("Connection was established, building Launcher accordingly");
+          LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+              "Connection was established, building Launcher accordingly");
           /*
            * Iterates through the list of Repositories and adds all of them to the Launcher.
            */
           for (int i = 0; i < names.size(); i++) {
-            LoggingTool.log("Building Area " + (i + 1) + "/" + names.size());
+            LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+                "Building Area " + (i + 1) + "/" + names.size());
             /*
              * Creates a new Area, which will show the Repository's executable File as well as a 
              * Possibility to download the latest Patch and delete the whole Folder.
@@ -346,16 +356,16 @@ public class GastroToolsLauncher extends Application {
              * Hard Drive of the Client. If not, the Client is informed and the startButton will be 
              * disabled by the use of the boolean above.
              */
-            LoggingTool.log("Exec File at: " + path + names.get(i) + File.separator + repos.get(i) 
-                + ".jar");
+            LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+                "Exec File at: " + path + names.get(i) + File.separator + repos.get(i) + ".jar");
             if (repos.get(i) == "" || repos.get(i) == null 
                 || !(new File(path + names.get(i) + File.separator + repos.get(i) 
                 + ".jar").exists())) {
               area.setPath("");
               area.updateMessage("Keine ausführbare Datei gefunden!");
               area.setRepo("");
-              LoggingTool.log("No Exec File found");
-              LoggingTool.logError("No Exec File found");
+              LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "No Exec File found");
+              LoggingTool.logError(getClass(), LoggingTool.getLineNumber(), "No Exec File found");
               startDisable = true;
               /*
                * If a valid executable Filename was added to the List and this File is on the Hard 
@@ -363,8 +373,8 @@ public class GastroToolsLauncher extends Application {
                */
             } else {
               area.setPath(path + names.get(i) + File.separator + repos.get(i) + ".jar");
-              LoggingTool.log("Set Path to " + path + names.get(i) + File.separator + repos.get(i) 
-                  + ".jar");
+              LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+                  "Set Path to " + path + names.get(i) + File.separator + repos.get(i) + ".jar");
               area.setRepo(repos.get(i));
             }
             /*
@@ -372,7 +382,8 @@ public class GastroToolsLauncher extends Application {
              */
             //TODO: Add flexible path to Icon.
             area.setPathToIcon("https://github.com/Haeldeus/CashAssets/raw/master/Launch4J/logo.png");
-            LoggingTool.log("Set Path to logo to " + area.getPathToIcon());
+            LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+                "Set Path to logo to " + area.getPathToIcon());
             /*
              * Adds the created Area to the Grid and enables/disables the buttons accordingly.
              */
@@ -385,22 +396,25 @@ public class GastroToolsLauncher extends Application {
              * Adds the created area to the List of Areas.
              */
             displayAreas.put(area.getName(), area);
-            LoggingTool.log(area.toString());
+            LoggingTool.log(getClass(), LoggingTool.getLineNumber(), area.toString());
           }
           /*
            * Starts the Task to check for Updates for all Areas.
            */
-          LoggingTool.log("Starts to check for Updates for all Repositories...");
+          LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+              "Starts to check for Updates for all Repositories...");
           startCheckUpdateTasks();
         } else {
-          LoggingTool.log("No Connection was established, building Launcher accordingly");
+          LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+              "No Connection was established, building Launcher accordingly");
           /*
            * In case that no connection was found, there might be different steps to ensure 
            * functionality. As of now, the only difference is in the switchButtons-Method, as 
            * "download" has to be disabled by default.
            */
           for (int i = 0; i < names.size(); i++) {
-            LoggingTool.log("Building Area " + (i + 1) + "/" + names.size());
+            LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+                "Building Area " + (i + 1) + "/" + names.size());
             AppDisplayArea area = new AppDisplayArea();
             area.setName(names.get(i));
 
@@ -408,15 +422,19 @@ public class GastroToolsLauncher extends Application {
             if (repos.get(i) == "" || repos.get(i) == null) {
               area.setPath("");
               area.updateMessage("Keine ausführbare Datei gefunden!");
-              LoggingTool.logError("Can't find an executable file for Repo " + area.getName());
-              LoggingTool.log("Can't find an executable file for Repo " + area.getName());
+              LoggingTool.logError(getClass(), LoggingTool.getLineNumber(), 
+                  "Can't find an executable file for Repo " + area.getName());
+              LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+                  "Can't find an executable file for Repo " + area.getName());
               startDisable = true;
             } else {
               area.setPath(names.get(i) + File.separator + repos.get(i) + ".jar");
-              LoggingTool.log("Set path to " + area.getPath() + ".jar");
+              LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+                  "Set path to " + area.getPath() + ".jar");
             }
             area.setPathToIcon("/res/Default.png");
-            LoggingTool.log("Set pathToIcon to default icon");
+            LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+                "Set pathToIcon to default icon");
             grid.add(area.createDisplayArea(), 0, i);
             area.switchButtons(startDisable, true, false);
             displayAreas.put(area.getName(), area);
@@ -444,7 +462,8 @@ public class GastroToolsLauncher extends Application {
      * Iterates through all Repositories added by the CheckerTask to check for updates.
      */
     for (int i = 0; i < repos.size(); i++) {
-      LoggingTool.log("Initiating start of UpdateTask " + (i + 1) + "/" + repos.size());
+      LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+          "Initiating start of UpdateTask " + (i + 1) + "/" + repos.size());
       /*
        * Gets the current displayArea, that will be checked for updates.
        */
@@ -460,24 +479,28 @@ public class GastroToolsLauncher extends Application {
        * parameter in the UpdateTask.
        */
       if (!area.isStartDisabled()) {
-        LoggingTool.log("Start enabled, autoUpdate will be set to false!");
+        LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+            "Start enabled, autoUpdate will be set to false!");
         task = new UpdateTask(repos.get(i), names.get(i), 
             displayAreas.get(names.get(i)), path, i, this, false);
       } else {
-        LoggingTool.log("Start disabled, therefor autoUpdate will be set to true!");
+        LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+            "Start disabled, therefor autoUpdate will be set to true!");
         task = new UpdateTask(repos.get(i), names.get(i), 
             displayAreas.get(names.get(i)), path, i, this, true);
       }
       /*
        * Binds the ProgressBar of the DisplayArea to the UpdateTask.
        */
-      LoggingTool.log("Binding ProgressBar to the UpdateTask...");
+      LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+          "Binding ProgressBar to the UpdateTask...");
       area.bindProgressBar(task);
       /*
        * Starts the Task. Also starts a second Thread to interrupt the Task after a given amount 
        * of time.
        */
-      LoggingTool.log("Starting UpdateTask with an InterruptTask");
+      LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+          "Starting UpdateTask with an InterruptTask");
       new Thread(task).start();
       new Thread(() -> {
         try {
@@ -508,7 +531,8 @@ public class GastroToolsLauncher extends Application {
      * started.
      */
     for (int index : indices) {
-      LoggingTool.log("Initiating start of the UpdateTask for the Area with the index " + index);
+      LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+          "Initiating start of the UpdateTask for the Area with the index " + index);
       /*
        * Gets the current displayArea, that will be checked for updates.
        */
@@ -524,24 +548,28 @@ public class GastroToolsLauncher extends Application {
        * parameter in the UpdateTask.
        */
       if (!area.isStartDisabled()) {
-        LoggingTool.log("Start enabled, autoUpdate will be set to false!");
+        LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+            "Start enabled, autoUpdate will be set to false!");
         task = new UpdateTask(repos.get(index), names.get(index), 
             displayAreas.get(names.get(index)), path, index, this, false);
       } else {
-        LoggingTool.log("Start disabled, therefor autoUpdate will be set to true!");
+        LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+            "Start disabled, therefor autoUpdate will be set to true!");
         task = new UpdateTask(repos.get(index), names.get(index), 
             displayAreas.get(names.get(index)), path, index, this, true);
       }
       /*
        * Binds the ProgressBar to this Task.
        */
-      LoggingTool.log("Binding ProgressBar to the UpdateTask...");
+      LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+          "Binding ProgressBar to the UpdateTask...");
       displayAreas.get(names.get(index)).bindProgressBar(task);
       
       /*
        * Starts the Task with a Thread to Interrupt this Task after a certain amount of time.
        */
-      LoggingTool.log("Starting UpdateTask with an InterruptTask");
+      LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+          "Starting UpdateTask with an InterruptTask");
       new Thread(task).start();
       new Thread(() -> {
         try {
@@ -563,8 +591,9 @@ public class GastroToolsLauncher extends Application {
    * @since 1.0
    */
   private void startWithoutUpdate() {
-    LoggingTool.log("Starting the Launcher without Update and with installed Folders instead of "
-        + "the List in the Repository.");
+    LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+        "Starting the Launcher without Update and with installed Folders instead of the List "
+        + "in the Repository.");
     Platform.runLater(new Runnable() {
       @Override
       public void run() {
@@ -573,7 +602,8 @@ public class GastroToolsLauncher extends Application {
          * These will be saved in the created ArrayList.
          */
         File f = new File(path);
-        LoggingTool.log("Checking for Folders in the Directory: \"" + path + "\"");
+        LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+            "Checking for Folders in the Directory: \"" + path + "\"");
         ArrayList<String> dirs = new ArrayList<String>();
         /*
          * Lists all Files and Folders in the current Directory and iterates through this List.
@@ -587,10 +617,11 @@ public class GastroToolsLauncher extends Application {
              * Since there is no dot, the current File is a Directory and will be added to dirs.
              */
             dirs.add(s);
-            LoggingTool.log("Adding folder: " + s);
+            LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Adding folder: " + s);
           }
         }
-        LoggingTool.log("Folders found: " + dirs.toString());
+        LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+            "Folders found: " + dirs.toString());
         /*
          * Sets the created List as Names of Repositories.
          */
@@ -598,13 +629,15 @@ public class GastroToolsLauncher extends Application {
         /*
          * Creates a new ArrayList, where all executable Files will be stored in.
          */
-        LoggingTool.log("Checking for executable .jar-Files...");
+        LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+            "Checking for executable .jar-Files...");
         ArrayList<String> jarList = new ArrayList<String>();
         /*
          * Goes through all Directories and checks for executable Files.
          */
         for (String dir : dirs) {
-          LoggingTool.log("Checking for executable File in the \"" + dir + "\"-Folder...");
+          LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+              "Checking for executable File in the \"" + dir + "\"-Folder...");
           /*
            * Used to exit the Loop, whenever an executable File was found.
            */
@@ -613,7 +646,8 @@ public class GastroToolsLauncher extends Application {
            * Concatenates the directory's Name to the path to list all Files in it.
            */
           f = new File(path + File.separator + dir);
-          LoggingTool.log("Files in the current Folder: " + f.list().toString());
+          LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+              "Files in the current Folder: " + f.list().toString());
           for (String file : f.list()) {
             /*
              * Checks, if an executable was added to the List, if yes this exits the Loop.
@@ -627,7 +661,8 @@ public class GastroToolsLauncher extends Application {
               /*
                * Adds the File to the List and sets added to true to exit the Loop.
                */
-              LoggingTool.log("Adding " + file + " to the List of executables.");
+              LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+                  "Adding " + file + " to the List of executables.");
               jarList.add(file);
               added = true;
             }
@@ -637,7 +672,8 @@ public class GastroToolsLauncher extends Application {
            * by Launcher when building the Area as a no executable.
            */
           if (!added) {
-            LoggingTool.log("No executable found, adding an empty String to the List!");
+            LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+                "No executable found, adding an empty String to the List!");
             jarList.add("");
           }
         }
@@ -646,8 +682,9 @@ public class GastroToolsLauncher extends Application {
          * know, that there is no connection.
          */
         setRepos(jarList);
-        LoggingTool.log("Repos set to " + repos.toString());
-        LoggingTool.log("Building Launcher...");
+        LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+            "Repos set to " + repos.toString());
+        LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Building Launcher...");
         buildLauncher(false);
       }
     });
