@@ -21,7 +21,7 @@ import util.AppDisplayArea;
  * A Task to check, if there is an update available for a specified Repository.
 
  * @author Haeldeus
- * @version 1.0
+ * @version {@value launcher.GastroToolsLauncher#version}
  */
 public class UpdateTask extends Task<Void> {
 
@@ -209,6 +209,7 @@ public class UpdateTask extends Task<Void> {
        * Updates the User, that no connection could be established.
        */
       area.updateMessage("Keine Internetverbindung entdeckt. Hier klicken für Neuversuch.");
+      area.hideProgressBar();
       LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
           "Connection to the Website failed! " + name + " couldn't be updated!");
       LoggingTool.logError(getClass(), LoggingTool.getLineNumber(), 
@@ -279,6 +280,7 @@ public class UpdateTask extends Task<Void> {
            * Also stops the further execution of this Task by returning null.
            */
           area.updateMessage("Zeitüberschreitung! Hier klicken für Neuversuch");
+          area.hideProgressBar();
           area.setPath(localPath + name + File.separator + repo + ".jar");
           LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
               "TIMEOUT! Path set to: " + area.getPath());
@@ -335,6 +337,7 @@ public class UpdateTask extends Task<Void> {
                * Also stops the further execution of this Task by returning null.
                */
               area.updateMessage("Zeitüberschreitung! Hier klicken für Neuversuch");
+              area.hideProgressBar();
               area.setPath(localPath + name + File.separator + repo + ".jar");
               LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
                   "TIMEOUT! Path set to: " + area.getPath());
