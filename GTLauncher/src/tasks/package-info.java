@@ -2,6 +2,6 @@
  * The Tasks, that are needed for the Launcher.
 
  * @author Haeldeus
- * @version 1.0
+ * @version {@value launcher.GastroToolsLauncher#version}
  */
 package tasks;

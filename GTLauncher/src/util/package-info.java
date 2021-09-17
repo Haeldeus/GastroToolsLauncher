@@ -4,6 +4,6 @@
  * stable.
 
  * @author Haeldeus
- * @version 1.0
+ * @version {@value launcher.GastroToolsLauncher#version}
  */
 package util;

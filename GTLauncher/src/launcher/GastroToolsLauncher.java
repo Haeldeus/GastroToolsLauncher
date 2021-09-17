@@ -23,6 +23,8 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import settingstool.Settings;
+import settingstool.SettingsTool;
 import tasks.ProgressTask;
 import tasks.UpdateTask;
 import tool.LoggingTool;
@@ -41,7 +43,7 @@ public class GastroToolsLauncher extends Application {
    * The Version of this Launcher. This is needed to write the version Number on the hard drive, so 
    * the Updater can keep this Launcher updated.
    */
-  private static final String version = "0.992";
+  public static final String version = "0.993";
   
   /**
    * The Label, that will display Messages to the User or general information.
@@ -81,13 +83,26 @@ public class GastroToolsLauncher extends Application {
   private Stage primaryStage;
   
   /**
+   * The SettingsTool to handle the Preferences of the User. Precisely, this Tool writes and 
+   * reads to the SettingsFile in the Directory and provides Methods to get each value.
+   */
+  private SettingsTool settings;
+  
+  /**
    * All {@link AppDisplayArea}s, that were added to the Launcher.
    */
   private HashMap<String, AppDisplayArea> displayAreas;
   
+  /**
+   * The current try for the ProgressTask. Will be increased, before each try to connect to the 
+   * Server.
+   */
+  private int progressIteration = 0;
+  
   @Override
   public void start(Stage primary) throws Exception {
     LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Version used: " + version);
+    settings = new SettingsTool();
     /*
      * Adds the Icon to the Stage, so it can be displayed in the TaskBar.
      */
@@ -260,12 +275,16 @@ public class GastroToolsLauncher extends Application {
     updatesLabel = new Label();
     bp.setBottom(this.updatesLabel);
     bp.setCenter(pi);
-    
+
+    /*
+     * Increases the ProgressIteration, since the next iteration of the ProgressTask is about to 
+     * start.
+     */
+    progressIteration++;
     /*
      * Creates a new ProgressTask, binds it to the Indicator and starts a new Thread for the Task.
      */
-    //TODO: Add possibility to change the timeout of the CheckerTask. (Setting?)
-    ProgressTask pt = new ProgressTask(this.updatesLabel, this, 5000);
+    ProgressTask pt = new ProgressTask(this.updatesLabel, this, progressIteration, settings);
     pi.progressProperty().bind(pt.progressProperty());
     LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
         "Starting ProgressTask as a new Thread...");
@@ -499,13 +518,13 @@ public class GastroToolsLauncher extends Application {
        * Starts the Task. Also starts a second Thread to interrupt the Task after a given amount 
        * of time.
        */
+      int timeout = area.getIteration() * Integer.parseInt(settings.getValue(Settings.timeout));
       LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
-          "Starting UpdateTask with an InterruptTask");
+          "Starting UpdateTask with an InterruptTask. Timeout is: " + timeout + "ms");
       new Thread(task).start();
       new Thread(() -> {
         try {
-          //TODO: Add possibility to change the timeout of the CheckerTask. (Setting?)
-          Thread.sleep(5000);  
+          Thread.sleep(timeout);  
         } catch (InterruptedException e) {
           //Testing Purposes, shouldn't be called.
           e.printStackTrace();
@@ -568,13 +587,13 @@ public class GastroToolsLauncher extends Application {
       /*
        * Starts the Task with a Thread to Interrupt this Task after a certain amount of time.
        */
+      int timeout = area.getIteration() * Integer.parseInt(settings.getValue(Settings.timeout));
       LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
-          "Starting UpdateTask with an InterruptTask");
+          "Starting UpdateTask with an InterruptTask. Timeout is: " + timeout + "ms");
       new Thread(task).start();
       new Thread(() -> {
         try {
-          //TODO: Add possibility to change the timeout of the CheckerTask. (Setting?)
-          Thread.sleep(5000);  
+          Thread.sleep(timeout);  
         } catch (InterruptedException e) {
           //Testing Purposes, shouldn't be called.
           e.printStackTrace();

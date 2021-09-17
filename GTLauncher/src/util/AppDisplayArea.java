@@ -30,7 +30,7 @@ import tool.LoggingTool;
  * display the Update News for this Application.
 
  * @author Haeldeus
- * @version 1.0
+ * @version {@value launcher.GastroToolsLauncher#version}
  */
 public class AppDisplayArea {
   
@@ -78,6 +78,12 @@ public class AppDisplayArea {
    * The primary Stage, that contains this DisplayArea.
    */
   private Stage primary;
+  
+  /**
+   * The current amount of tries increased by one to reach the Server for this specific 
+   * Application. Is used in the CheckerTask to increase the timeout.
+   */
+  private int iteration;
 
   /**
    * A Constructor for the Area. This will set all Fields to the given values and initiates 
@@ -98,6 +104,7 @@ public class AppDisplayArea {
     this.primary = primary;
     messageLabel = new Label("");
     buttons = new ArrayList<Button>();
+    iteration = 1;
   }
   
   /**
@@ -113,6 +120,7 @@ public class AppDisplayArea {
     this.setRepo("");
     messageLabel = new Label("");
     buttons = new ArrayList<Button>();
+    iteration = 1;
   }
   
   /**
@@ -616,6 +624,25 @@ public class AppDisplayArea {
     this.primary = primary;
   }
   
+  /**
+   * Returns the current Iteration (a.k.a. current try to reach the Server for this Application) 
+   * plus 1. Is used in the CheckerTask to increase the timeout after each failed Connection.
+   * This will also increase the Iteration by one.
+
+   * @return The current iteration as an Integer.
+   * @since 1.0
+   */
+  public int getIteration() {
+    this.iteration++;
+    return this.iteration - 1;
+  }
+  
+  /**
+   * Returns a String Representation of this Object. It consists of the Name of the Application and 
+   * Repository as well as important Information about the Paths.
+
+   * @since 1.0
+   */
   @Override
   public String toString() {
     String res = "";

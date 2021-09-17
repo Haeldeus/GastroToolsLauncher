@@ -29,7 +29,7 @@ import util.AppDisplayArea;
  * downloaded.
 
  * @author Haeldeus
- * @version 1.0
+ * @version {@value launcher.GastroToolsLauncher#version}
  */
 public class DownloadTask extends Task<Void> {
 

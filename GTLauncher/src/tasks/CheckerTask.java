@@ -18,7 +18,7 @@ import tool.LoggingTool;
  * Launcher's List.
 
  * @author Haeldeus
- * @version 1.0
+ * @version {@value launcher.GastroToolsLauncher#version}
  */
 public class CheckerTask extends Task<Void> {
 
@@ -319,6 +319,11 @@ public class CheckerTask extends Task<Void> {
     });
   }
   
+  /**
+   * Returns a String to identify this Task.
+
+   * @since 1.0
+   */
   @Override
   public String toString() {
     return "CheckerTask " + this.hashCode();

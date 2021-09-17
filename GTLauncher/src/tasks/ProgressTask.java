@@ -5,6 +5,8 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import launcher.GastroToolsLauncher;
+import settingstool.Settings;
+import settingstool.SettingsTool;
 import tool.LoggingTool;
 
 /**
@@ -12,7 +14,7 @@ import tool.LoggingTool;
  * will update the Launcher with the Lists that were fetched by the CheckerTask.
 
  * @author Haeldeus
- * @version 1.0
+ * @version {@value launcher.GastroToolsLauncher#version}
  */
 public class ProgressTask extends Task<Void> {
   
@@ -64,13 +66,15 @@ public class ProgressTask extends Task<Void> {
 
    * @param updates The Label, that will display information to the User.
    * @param primary The Launcher-Object, that called this Task.
-   * @param timeout The amount of Time before the CheckerTask will be cancelled in milliseconds.
+   * @param iteration The current try to reach the Server.
+   * @param settings  The SettingsTool to get the timeoutValue.
    * @since 1.0
    */
-  public ProgressTask(Label updates, GastroToolsLauncher primary, int timeout) {
+  public ProgressTask(Label updates, GastroToolsLauncher primary, int iteration, 
+      SettingsTool settings) {
     this.updates = updates;
     this.primary = primary;
-    this.timeout = timeout;
+    this.timeout = iteration * Integer.parseInt(settings.getValue(Settings.timeout));
     index = 1;
     max = 7;
   }
@@ -82,7 +86,8 @@ public class ProgressTask extends Task<Void> {
      */
     CheckerTask task = new CheckerTask(this, primary, index);
     LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
-        "Starting a new CheckerTask to get the List of supported Applications.");
+        "Starting a new CheckerTask to get the List of supported Applications. Timeout is: " 
+            + timeout + "ms");
     new Thread(task).start();
     /*
      * Starts a second Thread, that will cancel the CheckerTask after the specified Time.
