@@ -16,13 +16,21 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import launcher.handlers.GeneralSettingsHandler;
+import launcher.handlers.VersionHandler;
 import settingstool.Settings;
 import settingstool.SettingsTool;
 import tasks.ProgressTask;
@@ -43,7 +51,7 @@ public class GastroToolsLauncher extends Application {
    * The Version of this Launcher. This is needed to write the version Number on the hard drive, so 
    * the Updater can keep this Launcher updated.
    */
-  public static final String version = "0.993";
+  public static final String version = "0.994";
   
   /**
    * The Label, that will display Messages to the User or general information.
@@ -103,6 +111,7 @@ public class GastroToolsLauncher extends Application {
   public void start(Stage primary) throws Exception {
     LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Version used: " + version);
     settings = new SettingsTool();
+    
     /*
      * Adds the Icon to the Stage, so it can be displayed in the TaskBar.
      */
@@ -465,9 +474,63 @@ public class GastroToolsLauncher extends Application {
         ScrollPane sp = new ScrollPane();
         sp.setContent(grid);
         bp.setCenter(sp);
-        bp.setPadding(new Insets(10, 10, 10, 10));
+        bp.setTop(createMenuBar());
+        bp.setPadding(new Insets(0, 10, 10, 10));
       }     
     });
+  }
+  
+  /**
+   * Creates a MenuBar for the Launcher with some Menus and Items for Information, Settings and 
+   * more Things to come eventually.
+
+   * @return  A MenuBar, that has all Menus and Items in it, that were created.
+   * @see MenuBar
+   * @since 1.0
+   */
+  private MenuBar createMenuBar() {
+    LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+        "Creating the Menu...");
+    /*
+     * Creates the Item for the Settings Menu, where the Settings can be edited.
+     */
+    MenuItem settingsItem = new MenuItem("Bearbeiten...");
+    settingsItem.setOnAction(new GeneralSettingsHandler(this.settings, primaryStage));
+    settingsItem.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN, 
+        KeyCombination.SHIFT_DOWN));
+    /*
+     * Creates the Menu for the Settings Menu.
+     */
+    Menu settings = new Menu("Einstellungen");
+    settings.getItems().add(settingsItem);
+    /*
+     * Creates the MenuItem, where the User can see Information about the current and former 
+     * Versions.
+     */
+    MenuItem versionItem = new MenuItem("Versionsinfo...");
+    versionItem.setOnAction(new VersionHandler());
+    versionItem.setAccelerator(new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN, 
+        KeyCombination.SHIFT_DOWN));
+    /*
+     * Creates the Menu for all Information-related Items.
+     */
+    Menu info = new Menu("Infos");
+    info.getItems().add(versionItem);
+    /*
+     * Creates the MenuBar, that holds all Menus and will be returned by this Method.
+     */
+    MenuBar bar = new MenuBar();
+    /*
+     * Adds all Menus to the Bar.
+     */
+    bar.getMenus().add(settings);
+    bar.getMenus().add(info);
+    LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
+        "Menu created!");
+    /*
+     * Returns the Bar.
+     */
+    return bar;
   }
   
   /**

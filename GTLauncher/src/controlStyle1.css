@@ -17,7 +17,7 @@
   -fx-fill: rgb(171,118,118);
 }
 .button {
-  -fx-text-fill: rgb(171,118,118);
+  -fx-text-fill: black;
   -fx-background-color: #aaaaaa;
 }
 .label {
