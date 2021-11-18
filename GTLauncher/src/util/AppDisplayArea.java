@@ -145,9 +145,15 @@ public class AppDisplayArea {
     bp.setTop(lbName);
     
     /*
-     * Creates an ImageView for the Icon of the Application in this DisplayArea.
+     * Creates an ImageView for the Icon of the Application in this DisplayArea. If the Path to 
+     * the Icon was wrongly set or is null, the Default Icon will be used instead.
      */
-    Image img = new Image(pathToIcon);
+    Image img;
+    try {
+      img = new Image(pathToIcon);
+    } catch (Exception e) {
+      img = new Image("/res/Default.png");
+    }
     ImageView iw = new ImageView(img);
     iw.setFitWidth(50);
     iw.setFitHeight(50);
