@@ -51,7 +51,7 @@ public class GastroToolsLauncher extends Application {
    * The Version of this Launcher. This is needed to write the version Number on the hard drive, so 
    * the Updater can keep this Launcher updated.
    */
-  public static final String version = "0.994";
+  public static final String version = "0.995";
   
   /**
    * The Label, that will display Messages to the User or general information.
@@ -408,8 +408,8 @@ public class GastroToolsLauncher extends Application {
             /*
              * Adds an Icon to the AppDisplayArea.
              */
-            //TODO: Add flexible path to Icon.
-            area.setPathToIcon("https://github.com/Haeldeus/CashAssets/raw/master/Launch4J/logo.png");
+            area.setPathToIcon("https://github.com/Haeldeus/" + repos.get(i) + "/raw/main/" 
+                + repos.get(i) + "/src/res/Icon.png");
             LoggingTool.log(getClass(), LoggingTool.getLineNumber(), 
                 "Set Path to logo to " + area.getPathToIcon());
             /*
