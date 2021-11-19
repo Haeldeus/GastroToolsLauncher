@@ -105,6 +105,8 @@ public class DownloadTask extends Task<Void> {
   
   @Override
   protected Void call() throws Exception {
+    LoggingTool.log(getClass(), LoggingTool.getLineNumber(), "Downloading File from: " 
+        + downloadUrl);
     
     /*
      * Saves the Path of the File in a new String. This path is saved with the direct Folder, the 

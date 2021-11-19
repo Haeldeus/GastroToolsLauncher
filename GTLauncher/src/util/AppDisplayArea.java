@@ -2,6 +2,8 @@ package util;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -145,9 +147,15 @@ public class AppDisplayArea {
     bp.setTop(lbName);
     
     /*
-     * Creates an ImageView for the Icon of the Application in this DisplayArea.
+     * Creates an ImageView for the Icon of the Application in this DisplayArea. If the Path to 
+     * the Icon was wrongly set or is null, the Default Icon will be used instead.
      */
-    Image img = new Image(pathToIcon);
+    Image img;
+    if (urlExists(pathToIcon)) {
+      img = new Image(pathToIcon);
+    } else {
+      img = new Image("/res/Default.png");
+    }
     ImageView iw = new ImageView(img);
     iw.setFitWidth(50);
     iw.setFitHeight(50);
@@ -386,8 +394,7 @@ public class AppDisplayArea {
   }
   
   /**
-   * Adds a Handler to the DownloadButton to enable the Download. As of now, download is not yet 
-   * implemented.
+   * Adds a Handler to the DownloadButton to enable the Download.
 
    * @param downloadPath  The Path to the File to be downloaded.
    * @param version The Version String of the File to be downloaded.
@@ -651,4 +658,20 @@ public class AppDisplayArea {
     res = res.concat("Path to Icon: " + pathToIcon);
     return res;
   }
+  
+  /**
+   * Checks if the given URL exists.
+
+   * @param url The URL to check
+   * @return  {@code true}, if the given URL is valid, {@code false} if not.
+   * @since 1.0
+   */
+  private boolean urlExists(String url) {
+    try {
+      ((HttpURLConnection) (new URL(url).openConnection())).getResponseCode();
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
+  } 
 }
