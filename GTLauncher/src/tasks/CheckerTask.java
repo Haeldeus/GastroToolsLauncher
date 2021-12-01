@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 import javafx.application.Platform;
@@ -80,7 +81,7 @@ public class CheckerTask extends Task<Void> {
        * Fetches the InputStream from the Connection and sets the Reader to read from this Stream.
        */
       InputStream is = con.getInputStream();
-      br = new BufferedReader(new InputStreamReader(is));
+      br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
       /*
        * Updates the User via the Indicator and the given Text.
        */
