@@ -24,8 +24,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import loggingtool.LoggingTool;
 import tasks.DownloadTask;
-import tool.LoggingTool;
 
 /**
  * The Area that displays each single Application added to the Launcher. Every Area can also 
@@ -213,6 +213,7 @@ public class AppDisplayArea {
             /*
              * Exits this Process with the default integer 0.
              */
+            //TODO: Make this editable by the User.
             System.exit(0);
           } catch (IOException e) {
             /*

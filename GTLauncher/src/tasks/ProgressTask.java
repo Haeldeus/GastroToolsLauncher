@@ -5,9 +5,9 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import launcher.GastroToolsLauncher;
+import loggingtool.LoggingTool;
 import settingstool.Settings;
 import settingstool.SettingsTool;
-import tool.LoggingTool;
 
 /**
  * A Task, that will call a CheckerTask and controls the Execution of that Task. Afterwards this 

@@ -11,7 +11,7 @@ import java.util.StringTokenizer;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import launcher.GastroToolsLauncher;
-import tool.LoggingTool;
+import loggingtool.LoggingTool;
 
 /**
  * The Task, which Objects will check for the Repositories and their Names, that were added to the 

@@ -2,7 +2,7 @@ package launcher.handlers;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import tool.LoggingTool;
+import loggingtool.LoggingTool;
 
 /**
  * The Handler for the VersionInfo MenuItem of the Launcher.

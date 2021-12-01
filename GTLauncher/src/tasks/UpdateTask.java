@@ -14,7 +14,7 @@ import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
 import launcher.GastroToolsLauncher;
-import tool.LoggingTool;
+import loggingtool.LoggingTool;
 import util.AppDisplayArea;
 
 /**

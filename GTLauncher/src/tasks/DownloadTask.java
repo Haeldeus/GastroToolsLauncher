@@ -20,7 +20,7 @@ import java.nio.file.Paths;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
-import tool.LoggingTool;
+import loggingtool.LoggingTool;
 import util.AppDisplayArea;
 
 

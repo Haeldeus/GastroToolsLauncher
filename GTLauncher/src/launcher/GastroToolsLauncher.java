@@ -31,11 +31,11 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import launcher.handlers.GeneralSettingsHandler;
 import launcher.handlers.VersionHandler;
+import loggingtool.LoggingTool;
 import settingstool.Settings;
 import settingstool.SettingsTool;
 import tasks.ProgressTask;
 import tasks.UpdateTask;
-import tool.LoggingTool;
 import util.AppDisplayArea;
 
 /**
@@ -51,7 +51,7 @@ public class GastroToolsLauncher extends Application {
    * The Version of this Launcher. This is needed to write the version Number on the hard drive, so 
    * the Updater can keep this Launcher updated.
    */
-  public static final String version = "0.995";
+  public static final String version = "0.996";
   
   /**
    * The Label, that will display Messages to the User or general information.

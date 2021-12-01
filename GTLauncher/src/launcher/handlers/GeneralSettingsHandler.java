@@ -17,9 +17,9 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import loggingtool.LoggingTool;
 import settingstool.Settings;
 import settingstool.SettingsTool;
-import tool.LoggingTool;
 
 /**
  * The Handler for the Settings MenuItem in the MenuBar of the Launcher.

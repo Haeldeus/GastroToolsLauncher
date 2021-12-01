@@ -1,3 +1,4 @@
 #Begin List File
 CashAssets--SEP--Kassenhelfer
+GTExternalRegister--SEP--Außentheken-Helfer
 #End List File
